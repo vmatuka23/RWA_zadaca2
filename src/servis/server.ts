@@ -11,6 +11,9 @@ function pokreniServer(server: Application, port: number) {
     server.listen(port, () => {
         console.log(`Server pokrenut na portu: ${port}`);
     });
+    
+    // Keep the process alive
+    setInterval(() => {}, 1000);
 }
 
 function inicijalizirajPostavkeServera(server: Application) {
@@ -30,9 +33,9 @@ function inicijalizirajPostavkeServera(server: Application) {
     }));
 }
 
-function inicijalizirajKonfiguraciju(): Konfiguracija {
+async function inicijalizirajKonfiguraciju(): Promise<Konfiguracija> {
     let konf = new Konfiguracija();
-    konf.ucitajKonfiguraciju();
+    await konf.ucitajKonfiguraciju();
     return konf;
 }
 
@@ -47,7 +50,7 @@ function pripremiPutanjeServera(server: Application, konf: Konfiguracija) {
 }
 
 
-function main(argv: Array<string>) {
+async function main(argv: Array<string>) {
     let port: number = dajPort("vmatuka");
     if (argv[3] != undefined) {
         port = parseInt(argv[3]);
@@ -55,7 +58,7 @@ function main(argv: Array<string>) {
 
     let konf: Konfiguracija | null = null;
     try {
-        konf = inicijalizirajKonfiguraciju();
+        konf = await inicijalizirajKonfiguraciju();
     } catch (greska: Error | any) {
         if (process.argv.length == 2)
             console.error("Potrebno je dati naziv datoteke");
@@ -75,4 +78,11 @@ function main(argv: Array<string>) {
     
 }
 
-main(process.argv);
+main(process.argv).catch(err => {
+    console.error("Fatal error in main:", err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
