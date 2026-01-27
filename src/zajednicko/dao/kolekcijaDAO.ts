@@ -19,7 +19,8 @@ export default class KolekcijaDAO {
         const sql = `INSERT INTO kolekcija (naziv, opis, istaknutaSlika, javno)
                      VALUES (?, ?, ?, ?)`;
         const podaci = [k.naziv, k.opis ?? null, k.istaknutaSlika ?? null, k.javno ?? 0];
-        return await this.db.ubaciAzurirajPodatke(sql, podaci);
+        const rez = await this.db.ubaciAzurirajPodatke(sql, podaci);
+        return { id: rez.lastID };
     }
 
     async dajKolekcijuPoId(id: number): Promise<Kolekcija | null> {

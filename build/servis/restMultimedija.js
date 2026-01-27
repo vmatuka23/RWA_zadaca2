@@ -53,6 +53,10 @@ export class RestMultimedija {
     }
     async postMultimedija(req, res) {
         res.type("application/json");
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da kreirate multimediju" });
+            return;
+        }
         const { naziv, tip, putanja, kolekcijaId, javno, autor } = req.body;
         if (!naziv || !kolekcijaId) {
             res.status(400).json({ greska: "Naziv i kolekcijaId su obavezni" });
@@ -77,6 +81,10 @@ export class RestMultimedija {
     }
     async putMultimedija(req, res) {
         res.type("application/json");
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da uredite multimediju" });
+            return;
+        }
         const id = Number(req.params["id"]);
         const { naziv, tip, putanja, javno, autor } = req.body;
         const korisnikId = req.session?.korisnik?.id;
@@ -109,6 +117,10 @@ export class RestMultimedija {
     }
     async deleteMultimedija(req, res) {
         res.type("application/json");
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da izbrišete multimediju" });
+            return;
+        }
         const id = Number(req.params["id"]);
         const korisnikId = req.session?.korisnik?.id;
         const uloga = req.session?.korisnik?.uloga;

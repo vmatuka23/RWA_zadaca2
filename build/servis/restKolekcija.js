@@ -52,6 +52,10 @@ export class RestKolekcija {
     }
     async postKolekcija(req, res) {
         res.type("application/json");
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da kreirate kolekciju" });
+            return;
+        }
         const { naziv, opis, istaknutaSlika, javno } = req.body;
         const korisnikId = req.session?.korisnik?.id;
         if (!naziv) {
@@ -78,6 +82,10 @@ export class RestKolekcija {
     }
     async putKolekcija(req, res) {
         res.type("application/json");
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da uredite kolekciju" });
+            return;
+        }
         const id = Number(req.params["id"]);
         const { naziv, opis, istaknutaSlika, javno } = req.body;
         const korisnikId = req.session?.korisnik?.id;
@@ -108,6 +116,10 @@ export class RestKolekcija {
     }
     async deleteKolekcija(req, res) {
         res.type("application/json");
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da izbrišete kolekciju" });
+            return;
+        }
         const id = Number(req.params["id"]);
         const korisnikId = req.session?.korisnik?.id;
         const uloga = req.session?.korisnik?.uloga;

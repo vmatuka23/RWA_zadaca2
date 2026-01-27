@@ -2,11 +2,12 @@ import cors from "cors";
 import express from "express";
 import { dajPort } from "../zajednicko/esmPomocnik.js";
 import { Konfiguracija } from "../zajednicko/konfiguracija.js";
-import { pripremiPutanjeResursTMDB, pripremiPutanjeResursKorisnika } from "./servis.js";
+import { pripremiPutanjeResursTMDB, pripremiPutanjeResursKorisnika, pripremiPutanjeResursKolekcije, pripremiPutanjeResursMultimedije } from "./servis.js";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 const server = express();
 function inicijalizirajPostavkeServera(server) {
+    server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
     server.use(cors({
         origin: (origin, povratniPoziv) => {
@@ -44,6 +45,8 @@ async function inicijalizirajKonfiguraciju() {
 function pripremiPutanjeServera(server, konf) {
     pripremiPutanjeResursTMDB(server, konf);
     pripremiPutanjeResursKorisnika(server, konf);
+    pripremiPutanjeResursKolekcije(server);
+    pripremiPutanjeResursMultimedije(server);
     server.use((zahtjev, odgovor) => {
         odgovor.status(404);
         var poruka = { greska: "nepostojeći resurs" };
