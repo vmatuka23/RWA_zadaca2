@@ -49,6 +49,7 @@ export function pripremiPutanjeResursKorisnikKolekcija(server: Application) {
 export function pripremiPutanjeResursKolekcije(server: Application) {
   let restKolekcija = new RestKolekcija();
   server.get("/api/kolekcije", restKolekcija.getKolekcije.bind(restKolekcija));
+  server.get("/api/kolekcije/javne", restKolekcija.getJavneKolekcije.bind(restKolekcija));
   server.post("/api/kolekcije", restKolekcija.postKolekcija.bind(restKolekcija));
   server.get("/api/kolekcije/:id", restKolekcija.getKolekcijaPoId.bind(restKolekcija));
   server.put("/api/kolekcije/:id", restKolekcija.putKolekcija.bind(restKolekcija));
@@ -102,5 +103,15 @@ export function pripremiPutanjeResursKorisnika(server:Application,konf:Konfigura
   server.delete(
     "/api/korisnici/:korime",
     restKorisnik.deleteKorisnik.bind(restKorisnik),
+  );
+
+  // Admin-only endpoints for user management
+  server.put(
+    "/api/korisnici/:id/blokiraj",
+    restKorisnik.blokirajKorisnika.bind(restKorisnik),
+  );
+  server.put(
+    "/api/korisnici/:id/uloga",
+    restKorisnik.promijeniUlogu.bind(restKorisnik),
   );
 }

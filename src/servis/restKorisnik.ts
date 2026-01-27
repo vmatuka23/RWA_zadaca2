@@ -16,8 +16,38 @@ export class RestKorisnik {
 
  async getKorisnici(zahtjev: Request, odgovor: Response) {
     odgovor.type("application/json");
-    const korisnici = await this.kdao.dajSveKorisnike();
-    odgovor.send(JSON.stringify(korisnici));
+    
+    // Check if user is logged in first
+    if (!zahtjev.session?.korisnik) {
+      odgovor.status(401).json({ greska: "Morate biti prijavljeni" });
+      return;
+    }
+
+    const uloga = zahtjev.session.korisnik.uloga;
+
+    // Only admin can get all users
+    if (uloga !== "admin") {
+      odgovor.status(403).json({ greska: "Morate biti admin da vidite sve korisnike" });
+      return;
+    }
+
+    try {
+      const korisnici = await this.kdao.dajSveKorisnike();
+      // Remove sensitive data like password hashes and salt
+      const safeKorisnici = korisnici.map(k => ({
+        id: k.id,
+        korisnickoIme: k.korisnickoIme,
+        email: k.email,
+        uloga: k.uloga,
+        blokiran: k.blokiran,
+        ime: k.ime,
+        prezime: k.prezime,
+        datumRegistracije: k.datumRegistracije
+      }));
+      odgovor.json(safeKorisnici);
+    } catch (err: any) {
+      odgovor.status(500).json({ greska: err.message });
+    }
 }
 
 
@@ -165,5 +195,104 @@ export class RestKorisnik {
       odgovor.send(JSON.stringify({ greska: "Korisnik nije pronađen" }));
     }
   };
+
+  // PUT /api/korisnici/:id/blokiraj - Block or unblock user (ADMIN ONLY)
+  async blokirajKorisnika(zahtjev: Request, odgovor: Response): Promise<void> {
+    odgovor.type("application/json");
+    
+    // Check if user is logged in first
+    if (!zahtjev.session?.korisnik) {
+      odgovor.status(401).json({ greska: "Morate biti prijavljeni" });
+      return;
+    }
+
+    const uloga = zahtjev.session.korisnik.uloga;
+    const adminId = zahtjev.session.korisnik.id;
+
+    // Only admin can block/unblock users
+    if (uloga !== "admin") {
+      odgovor.status(403).json({ greska: "Morate biti admin da blokujete korisnike" });
+      return;
+    }
+
+    const korisnikId = Number(zahtjev.params["id"]);
+    const { blokiran } = zahtjev.body;
+
+    if (blokiran === undefined) {
+      odgovor.status(400).json({ greska: "Nedostaje polje 'blokiran'" });
+      return;
+    }
+
+    try {
+      // Admin cannot block himself
+      if (korisnikId === adminId) {
+        odgovor.status(403).json({ greska: "Ne možete blokirati sami sebe" });
+        return;
+      }
+
+      const korisnik = await this.kdao.dajKorisnikaPoId(korisnikId);
+      if (!korisnik) {
+        odgovor.status(404).json({ greska: "Korisnik ne postoji" });
+        return;
+      }
+
+      await this.kdao.postaviBlokiran(korisnikId, blokiran);
+      const status = blokiran ? "blokiran" : "deblokiran";
+      odgovor.json({ status: "uspjeh", poruka: `Korisnik je ${status}` });
+    } catch (err: any) {
+      odgovor.status(500).json({ greska: err.message });
+    }
+  }
+
+  // PUT /api/korisnici/:id/uloga - Change user role (ADMIN ONLY)
+  async promijeniUlogu(zahtjev: Request, odgovor: Response): Promise<void> {
+    odgovor.type("application/json");
+    
+    // Check if user is logged in first
+    if (!zahtjev.session?.korisnik) {
+      odgovor.status(401).json({ greska: "Morate biti prijavljeni" });
+      return;
+    }
+
+    const uloga = zahtjev.session.korisnik.uloga;
+
+    // Only admin can change user roles
+    if (uloga !== "admin") {
+      odgovor.status(403).json({ greska: "Morate biti admin da mijenjate uloge korisnika" });
+      return;
+    }
+
+    const korisnikId = Number(zahtjev.params["id"]);
+    const { novaUloga } = zahtjev.body;
+
+    if (!novaUloga) {
+      odgovor.status(400).json({ greska: "Nedostaje polje 'novaUloga'" });
+      return;
+    }
+
+    // Validate role
+    if (!["korisnik", "moderator"].includes(novaUloga)) {
+      odgovor.status(400).json({ greska: "Uloga može biti samo 'korisnik' ili 'moderator'" });
+      return;
+    }
+
+    try {
+      const korisnik = await this.kdao.dajKorisnikaPoId(korisnikId);
+      if (!korisnik) {
+        odgovor.status(404).json({ greska: "Korisnik ne postoji" });
+        return;
+      }
+
+      const azuriraniKorisnik: Korisnik = {
+        ...korisnik,
+        uloga: novaUloga
+      };
+
+      await this.kdao.azurirajKorisnika(azuriraniKorisnik);
+      odgovor.json({ status: "uspjeh", poruka: `Uloga korisnika promijenjena na '${novaUloga}'` });
+    } catch (err: any) {
+      odgovor.status(500).json({ greska: err.message });
+    }
+  }
 
 }

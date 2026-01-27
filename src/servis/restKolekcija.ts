@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Baza from "../zajednicko/sqliteBaza.js";
 import KolekcijaDAO, { Kolekcija } from "../zajednicko/dao/kolekcijaDAO.js";
 
+const PAGE_LIMIT = 10; // Configured page limit
+
 export class RestKolekcija {
   private kdao: KolekcijaDAO;
 
@@ -15,19 +17,55 @@ export class RestKolekcija {
     res.type("application/json");
     const uloga = req.session?.korisnik?.uloga;
     const korisnikId = req.session?.korisnik?.id;
+    const page = parseInt(req.query['page'] as string) || 1;
+    const offset = (page - 1) * PAGE_LIMIT;
 
     try {
+      // Only logged-in users (korisnik, moderator, admin) can access their collections
+      if (uloga !== "korisnik" && uloga !== "moderator" && uloga !== "admin") {
+        res.status(401).json({ greska: "Morate biti prijavljeni kao korisnik" });
+        return;
+      }
+
       let kolekcije: Kolekcija[];
 
-      if (uloga === "gost") {
-        kolekcije = await this.kdao.dajJavneKolekcije();
-      } else if (uloga === "korisnik") {
+      if (uloga === "korisnik") {
         kolekcije = await this.kdao.dajKolekcijeKorisnika(korisnikId!);
       } else {
+        // moderator, admin
         kolekcije = await this.kdao.dajSveKolekcije();
       }
 
-      res.send(JSON.stringify(kolekcije));
+      // Implement pagination
+      const paginatedKolekcije = kolekcije.slice(offset, offset + PAGE_LIMIT);
+      
+      res.json({
+        kolekcije: paginatedKolekcije,
+        strana: page,
+        limitPoStranici: PAGE_LIMIT,
+        ukupno: kolekcije.length
+      });
+    } catch (err: any) {
+      res.status(500).json({ greska: err.message });
+    }
+  }
+
+  // GET /api/kolekcije/javne - Public collections (for guests)
+  async getJavneKolekcije(req: Request, res: Response) {
+    res.type("application/json");
+    const page = parseInt(req.query['page'] as string) || 1;
+    const offset = (page - 1) * PAGE_LIMIT;
+
+    try {
+      const javneKolekcije = await this.kdao.dajJavneKolekcije();
+      const paginatedKolekcije = javneKolekcije.slice(offset, offset + PAGE_LIMIT);
+      
+      res.json({
+        kolekcije: paginatedKolekcije,
+        strana: page,
+        limitPoStranici: PAGE_LIMIT,
+        ukupno: javneKolekcije.length
+      });
     } catch (err: any) {
       res.status(500).json({ greska: err.message });
     }
@@ -45,10 +83,22 @@ export class RestKolekcija {
         return;
       }
 
-      if (
-        (uloga === "gost" && row.javno !== 1) ||
-        (uloga === "korisnik" && row.javno !== 1 && !(await this.kdao.jeVlasnikKolekcije(id, korisnikId!)))
-      ) {
+      // Check access permissions
+      // - Guests can only see public collections
+      // - Users can see their own or public collections
+      // - Moderators and admins can see all
+      if (uloga === "gost") {
+        if (row.javno !== 1) {
+          res.status(403).json({ greska: "Nemate pravo pristupa" });
+          return;
+        }
+      } else if (uloga === "korisnik") {
+        const isOwner = await this.kdao.jeVlasnikKolekcije(id, korisnikId!);
+        if (row.javno !== 1 && !isOwner) {
+          res.status(403).json({ greska: "Nemate pravo pristupa" });
+          return;
+        }
+      } else if (uloga !== "moderator" && uloga !== "admin") {
         res.status(403).json({ greska: "Nemate pravo pristupa" });
         return;
       }
@@ -61,17 +111,27 @@ export class RestKolekcija {
 
   async postKolekcija(req: Request, res: Response): Promise<void> {
     res.type("application/json");
+    
+    // Check if user is logged in first
     if (!req.session?.korisnik) {
-        res.status(401).json({ greska: "Morate biti prijavljeni da kreirate kolekciju" });
-        return;
+      res.status(401).json({ greska: "Morate biti prijavljeni da kreirate kolekciju" });
+      return;
+    }
+
+    const uloga = req.session.korisnik.uloga;
+
+    // Only moderator and admin can create collections
+    if (uloga !== "moderator" && uloga !== "admin") {
+      res.status(403).json({ greska: "Morate biti moderator ili admin da kreirate kolekciju" });
+      return;
     }
 
     const { naziv, opis, istaknutaSlika, javno } = req.body as Kolekcija;
-    const korisnikId = req.session?.korisnik?.id;
+    const korisnikId = req.session.korisnik.id;
 
     if (!naziv) {
-        res.status(400).json({ greska: "Naziv je obavezan" });
-        return;
+      res.status(400).json({ greska: "Naziv je obavezan" });
+      return;
     }
 
     try {
@@ -84,12 +144,12 @@ export class RestKolekcija {
 
       const poruka = await this.kdao.dodajKolekciju(novaKolekcija);
       
-      // Automatski dodaj vlasnika u korisnik_kolekcija
+      // Automatically add creator as owner in korisnik_kolekcija
       if ((poruka as any).id) {
-        await this.kdao.dodajVlasnikaKolekciji((poruka as any).id, korisnikId!);
+        await this.kdao.dodajVlasnikaKolekciji((poruka as any).id, korisnikId);
       }
 
-      res.status(201).json(poruka);
+      res.status(201).json({ status: "uspjeh", kolekcijaId: (poruka as any).id });
     } catch (err: any) {
       res.status(500).json({ greska: err.message });
     }
@@ -97,14 +157,16 @@ export class RestKolekcija {
 
   async putKolekcija(req: Request, res: Response): Promise<void> {
     res.type("application/json");
+    const uloga = req.session?.korisnik?.uloga;
+    
     if (!req.session?.korisnik) {
-        res.status(401).json({ greska: "Morate biti prijavljeni da uredite kolekciju" });
-        return;
+      res.status(401).json({ greska: "Morate biti prijavljeni da uredite kolekciju" });
+      return;
     }
+
     const id = Number(req.params["id"]);
     const { naziv, opis, istaknutaSlika, javno } = req.body as Kolekcija;
-    const korisnikId = req.session?.korisnik?.id;
-    const uloga = req.session?.korisnik?.uloga;
+    const korisnikId = req.session.korisnik.id;
 
     try {
       const row = await this.kdao.dajKolekcijuPoId(id);
@@ -113,7 +175,9 @@ export class RestKolekcija {
         return;
       }
 
-      if (!(await this.kdao.jeVlasnikKolekcije(id, korisnikId!)) && uloga !== "moderator" && uloga !== "admin") {
+      // Check if user is owner or has elevated role
+      const isOwner = await this.kdao.jeVlasnikKolekcije(id, korisnikId);
+      if (!isOwner && uloga !== "moderator" && uloga !== "admin") {
         res.status(403).json({ greska: "Nemate pravo uređivati ovu kolekciju" });
         return;
       }
@@ -121,13 +185,13 @@ export class RestKolekcija {
       const azuriranaKolekcija: Kolekcija = {
         id,
         naziv: naziv || row.naziv,
-        opis: opis || row.opis || "",
-        istaknutaSlika: istaknutaSlika || row.istaknutaSlika || "",
-        javno: javno != null ? (javno ? 1 : 0) : (row.javno ?? 0)
+        opis: opis !== undefined ? opis : (row.opis || ""),
+        istaknutaSlika: istaknutaSlika !== undefined ? istaknutaSlika : (row.istaknutaSlika || ""),
+        javno: javno !== undefined ? (javno ? 1 : 0) : (row.javno ?? 0)
       };
 
       await this.kdao.azurirajKolekciju(azuriranaKolekcija);
-      res.json({ poruka: "Kolekcija uspješno ažurirana" });
+      res.status(200).json({ status: "uspjeh", poruka: "Kolekcija uspješno ažurirana" });
     } catch (err: any) {
       res.status(500).json({ greska: err.message });
     }
@@ -135,13 +199,15 @@ export class RestKolekcija {
 
   async deleteKolekcija(req: Request, res: Response): Promise<void> {
     res.type("application/json");
-    if (!req.session?.korisnik) {
-        res.status(401).json({ greska: "Morate biti prijavljeni da izbrišete kolekciju" });
-        return;
-    }
-    const id = Number(req.params["id"]);
-    const korisnikId = req.session?.korisnik?.id;
     const uloga = req.session?.korisnik?.uloga;
+    
+    if (!req.session?.korisnik) {
+      res.status(401).json({ greska: "Morate biti prijavljeni da izbrišete kolekciju" });
+      return;
+    }
+
+    const id = Number(req.params["id"]);
+    const korisnikId = req.session.korisnik.id;
 
     try {
       const row = await this.kdao.dajKolekcijuPoId(id);
@@ -150,13 +216,15 @@ export class RestKolekcija {
         return;
       }
 
-      if (!(await this.kdao.jeVlasnikKolekcije(id, korisnikId!)) && uloga !== "moderator" && uloga !== "admin") {
+      // Check if user is owner or has elevated role
+      const isOwner = await this.kdao.jeVlasnikKolekcije(id, korisnikId);
+      if (!isOwner && uloga !== "moderator" && uloga !== "admin") {
         res.status(403).json({ greska: "Nemate pravo brisati ovu kolekciju" });
         return;
       }
 
       await this.kdao.obrisiKolekciju(id);
-      res.json({ poruka: "Kolekcija obrisana" });
+      res.status(200).json({ status: "uspjeh", poruka: "Kolekcija obrisana" });
     } catch (err: any) {
       res.status(500).json({ greska: err.message });
     }
@@ -164,19 +232,39 @@ export class RestKolekcija {
 
   async dodajMultimediju(req: Request, res: Response): Promise<void> {
     res.type("application/json");
+    const uloga = req.session?.korisnik?.uloga;
+
+    if (!req.session?.korisnik) {
+      res.status(401).json({ greska: "Morate biti prijavljeni da dodate multimediju" });
+      return;
+    }
+
     const kolekcijaId = Number(req.params["id"]);
     const { multimedijaId } = req.body;
-    const korisnikId = req.session?.korisnik?.id;
+    const korisnikId = req.session.korisnik.id;
+
+    if (!multimedijaId) {
+      res.status(400).json({ greska: "Nedostaje multimedijaId" });
+      return;
+    }
 
     try {
-      const vlasnik = await this.kdao.jeVlasnikKolekcije(kolekcijaId, korisnikId!);
-      if (!vlasnik && req.session?.korisnik?.uloga !== "moderator" && req.session?.korisnik?.uloga !== "admin") {
+      // Check if collection exists
+      const kolekcija = await this.kdao.dajKolekcijuPoId(kolekcijaId);
+      if (!kolekcija) {
+        res.status(404).json({ greska: "Kolekcija ne postoji" });
+        return;
+      }
+
+      // Check if user is owner or has elevated role
+      const isOwner = await this.kdao.jeVlasnikKolekcije(kolekcijaId, korisnikId);
+      if (!isOwner && uloga !== "moderator" && uloga !== "admin") {
         res.status(403).json({ greska: "Nemate pravo uređivati ovu kolekciju" });
         return;
       }
 
       await this.kdao.dodajMultimedijuKolekciji(kolekcijaId, multimedijaId);
-      res.json({ poruka: "Multimedija dodana u kolekciju" });
+      res.status(200).json({ status: "uspjeh", poruka: "Multimedija dodana u kolekciju" });
     } catch (err: any) {
       res.status(500).json({ greska: err.message });
     }
@@ -184,19 +272,34 @@ export class RestKolekcija {
 
   async ukloniMultimediju(req: Request, res: Response): Promise<void> {
     res.type("application/json");
+    const uloga = req.session?.korisnik?.uloga;
+
+    if (!req.session?.korisnik) {
+      res.status(401).json({ greska: "Morate biti prijavljeni da uklonite multimediju" });
+      return;
+    }
+
     const kolekcijaId = Number(req.params["id"]);
     const multimedijaId = Number(req.params["multimedijaId"]);
-    const korisnikId = req.session?.korisnik?.id;
+    const korisnikId = req.session.korisnik.id;
 
     try {
-      const vlasnik = await this.kdao.jeVlasnikKolekcije(kolekcijaId, korisnikId!);
-      if (!vlasnik && req.session?.korisnik?.uloga !== "moderator" && req.session?.korisnik?.uloga !== "admin") {
+      // Check if collection exists
+      const kolekcija = await this.kdao.dajKolekcijuPoId(kolekcijaId);
+      if (!kolekcija) {
+        res.status(404).json({ greska: "Kolekcija ne postoji" });
+        return;
+      }
+
+      // Check if user is owner or has elevated role
+      const isOwner = await this.kdao.jeVlasnikKolekcije(kolekcijaId, korisnikId);
+      if (!isOwner && uloga !== "moderator" && uloga !== "admin") {
         res.status(403).json({ greska: "Nemate pravo uređivati ovu kolekciju" });
         return;
       }
 
       await this.kdao.ukloniMultimedijuIzKolekcije(kolekcijaId, multimedijaId);
-      res.json({ poruka: "Multimedija uklonjena iz kolekcije" });
+      res.status(200).json({ status: "uspjeh", poruka: "Multimedija uklonjena iz kolekcije" });
     } catch (err: any) {
       res.status(500).json({ greska: err.message });
     }
