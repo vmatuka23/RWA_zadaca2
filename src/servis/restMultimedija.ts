@@ -9,7 +9,6 @@ export class RestMultimedija {
     this.db = db;
   }
 
-  // -------------------------------------------------
   // Dohvat svih multimedija
   getMultimedija(req: Request, res: Response) {
     const uloga = req.session?.korisnik?.uloga;
@@ -32,7 +31,6 @@ export class RestMultimedija {
     });
   }
 
-  // -------------------------------------------------
   // Dohvat jednog multimedijalnog zapisa po ID
   getMultimedijaPoId(req: Request, res: Response) {
     const id = Number(req.params["id"]);
@@ -55,7 +53,6 @@ export class RestMultimedija {
     });
   }
 
-  // -------------------------------------------------
   // Dodavanje nove multimedije
   postMultimedija(req: Request, res: Response): void {
     const { naziv, tip, putanja, kolekcijaId, javno, autor } = req.body as Multimedija;
@@ -79,7 +76,6 @@ export class RestMultimedija {
     );
   }
 
-  // -------------------------------------------------
   // Ažuriranje multimedije
   putMultimedija(req: Request, res: Response): void {
     const id = Number(req.params["id"]);
@@ -121,7 +117,6 @@ export class RestMultimedija {
     });
   }
 
-  // -------------------------------------------------
   // Brisanje multimedije
   deleteMultimedija(req: Request, res: Response): void {
     const id = Number(req.params["id"]);
@@ -150,7 +145,6 @@ export class RestMultimedija {
     });
   }
 
-  // -------------------------------------------------
   // Pomoćna metoda: provjera vlasništva (async)
   async jeVlasnik(kolekcijaId: number, korisnikId: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
