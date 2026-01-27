@@ -3,7 +3,7 @@ import Baza from "../zajednicko/sqliteBaza.js";
 import KorisnikDAO, { Korisnik } from "../zajednicko/dao/korisnikDAO.js";
 import { Validacija } from "../zajednicko/validacija.js";
 import { SesijaKorisnikI } from "../servisI/korisniciI.js";
-import { kreirajSHA256, dajNasumceBroj } from "../zajednicko/kodovi.js";
+import { kreirajSHA256} from "../zajednicko/kodovi.js";
 
 export class RestKorisnik {
   private kdao;
@@ -142,7 +142,7 @@ export class RestKorisnik {
       }
     }
 
-    odgovor.status(407);
+    odgovor.status(400);
     let poruka = { greska: "Nedostaje podatak" };
     odgovor.send(JSON.stringify(poruka));
   };
