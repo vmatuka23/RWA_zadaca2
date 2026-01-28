@@ -18,6 +18,7 @@ export class RestKolekcija {
     const uloga = req.session?.korisnik?.uloga;
     const korisnikId = req.session?.korisnik?.id;
     const page = parseInt(req.query['page'] as string) || 1;
+    const all = req.query['all'] === 'true';
     const offset = (page - 1) * PAGE_LIMIT;
 
     try {
@@ -34,6 +35,15 @@ export class RestKolekcija {
       } else {
         // moderator, admin
         kolekcije = await this.kdao.dajSveKolekcije();
+      }
+
+      // If all=true, skip pagination (used for dropdowns)
+      if (all) {
+        res.json({
+          kolekcije: kolekcije,
+          ukupno: kolekcije.length
+        });
+        return;
       }
 
       // Implement pagination

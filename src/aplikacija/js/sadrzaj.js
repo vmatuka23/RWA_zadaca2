@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const MAKSIMALNA_VELICINA_DATOTEKE = 1 * 1024 * 1024;
 
   async function ucitajKolekcije() {
-    const podaci = await Zajednicko.posaljiZahtjev("/api/kolekcije");
+    const podaci = await Zajednicko.posaljiZahtjev("/api/kolekcije?all=true");
 
     if (!podaci || !selectKolekcija) return;
 

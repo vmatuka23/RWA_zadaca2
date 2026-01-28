@@ -155,7 +155,7 @@ const Zajednicko = (function () {
     const korisnik = dohvatiTrenutnogKorisnika();
     prikaziNavigaciju(korisnik ? korisnik.uloga : null);
 
-    const gumbOdjava = document.getElementById("gumb-odjava");
+    const gumbOdjava = document.getElementById("gumbOdjava");
     if (gumbOdjava) {
       gumbOdjava.addEventListener("click", async (e) => {
         e.preventDefault();

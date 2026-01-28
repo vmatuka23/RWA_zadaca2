@@ -13,6 +13,7 @@ export class RestKolekcija {
         const uloga = req.session?.korisnik?.uloga;
         const korisnikId = req.session?.korisnik?.id;
         const page = parseInt(req.query['page']) || 1;
+        const all = req.query['all'] === 'true';
         const offset = (page - 1) * PAGE_LIMIT;
         try {
             // Only logged-in users (korisnik, moderator, admin) can access their collections
@@ -27,6 +28,14 @@ export class RestKolekcija {
             else {
                 // moderator, admin
                 kolekcije = await this.kdao.dajSveKolekcije();
+            }
+            // If all=true, skip pagination (used for dropdowns)
+            if (all) {
+                res.json({
+                    kolekcije: kolekcije,
+                    ukupno: kolekcije.length
+                });
+                return;
             }
             // Implement pagination
             const paginatedKolekcije = kolekcije.slice(offset, offset + PAGE_LIMIT);

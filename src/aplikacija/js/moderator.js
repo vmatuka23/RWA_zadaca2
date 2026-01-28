@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function ucitajKolekcije() {
-    const podaci = await Zajednicko.posaljiZahtjev("/api/kolekcije");
+    const podaci = await Zajednicko.posaljiZahtjev("/api/kolekcije?all=true");
 
     if (!podaci) return;
 
