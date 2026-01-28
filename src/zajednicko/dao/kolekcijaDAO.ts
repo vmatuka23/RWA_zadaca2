@@ -42,6 +42,15 @@ export default class KolekcijaDAO {
     }
 
     async obrisiKolekciju(id: number) {
+        // First delete related records from korisnik_kolekcija
+        const sqlKorisnikKolekcija = `DELETE FROM korisnik_kolekcija WHERE kolekcijaId = ?`;
+        await this.db.ubaciAzurirajPodatke(sqlKorisnikKolekcija, [id]);
+        
+        // Then delete related multimedia
+        const sqlMultimedija = `DELETE FROM multimedija WHERE kolekcijaId = ?`;
+        await this.db.ubaciAzurirajPodatke(sqlMultimedija, [id]);
+        
+        // Finally delete the collection
         const sql = `DELETE FROM kolekcija WHERE id = ?`;
         return await this.db.ubaciAzurirajPodatke(sql, [id]);
     }

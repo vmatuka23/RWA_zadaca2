@@ -62,6 +62,7 @@ export function pripremiPutanjeResursMultimedije(server: Application) {
   let restMultimedija = new RestMultimedija();
   server.get("/api/multimedija", restMultimedija.getMultimedija.bind(restMultimedija));
   server.post("/api/multimedija", upload.single("datoteka"), restMultimedija.postMultimedija.bind(restMultimedija));
+  server.post("/api/multimedija/url", restMultimedija.postMultimedijaURL.bind(restMultimedija));
   server.get("/api/multimedija/:id", restMultimedija.getMultimedijaPoId.bind(restMultimedija));
   server.put("/api/multimedija/:id", restMultimedija.putMultimedija.bind(restMultimedija));
   server.delete("/api/multimedija/:id", restMultimedija.deleteMultimedija.bind(restMultimedija));

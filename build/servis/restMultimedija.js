@@ -120,6 +120,47 @@ export class RestMultimedija {
         }
     }
     /**
+     * POST /api/multimedija/url
+     * Dodaj multimediju putem URL-a (za TMDB sadržaj)
+     */
+    async postMultimedijaURL(req, res) {
+        res.type("application/json");
+        // Validacija sesije
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni da dodate multimediju" });
+            return;
+        }
+        const { naziv, tip, putanja, kolekcijaId, javno } = req.body;
+        // Validacija obaveznih polja
+        if (!naziv || !kolekcijaId || !putanja) {
+            res.status(400).json({ greska: "Naziv, kolekcijaId i putanja (URL) su obavezni" });
+            return;
+        }
+        // Provjeri ima li korisnik pristup (nije guest)
+        if (req.session.korisnik.uloga === "gost") {
+            res.status(403).json({ greska: "Gosti ne mogu dodavati multimediju" });
+            return;
+        }
+        try {
+            // Kreiraj objekt multimedije za bazu
+            const novaMultimedija = {
+                naziv: naziv.substring(0, 255),
+                tip: tip || "slika",
+                putanja: putanja,
+                kolekcijaId: parseInt(kolekcijaId),
+                javno: javno ? 1 : 0,
+                autor: "",
+                datumDodavanja: new Date().toISOString()
+            };
+            // Spremi u bazu
+            const rezultat = await this.mdao.dodajSadrzaj(novaMultimedija);
+            res.status(201).json({ status: "uspjeh", poruka: "Multimedija uspješno dodana", id: rezultat });
+        }
+        catch (err) {
+            res.status(500).json({ greska: `Greška pri dodavanju multimedije: ${err.message}` });
+        }
+    }
+    /**
      * DELETE /api/multimedija/:id
      * Obriši multimediju sa dozvole pristupa
      */

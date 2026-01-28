@@ -136,13 +136,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const rezultat = await Zajednicko.posaljiZahtjev(
-      `/api/kolekcije/${kolekcijaId}/sadrzaj`,
-      {
-        method: "POST",
-        body: JSON.stringify({ tip, url, naziv }),
-      },
-    );
+    const rezultat = await Zajednicko.posaljiZahtjev(`/api/multimedija/url`, {
+      method: "POST",
+      body: JSON.stringify({
+        naziv: naziv,
+        tip: tip,
+        putanja: url,
+        kolekcijaId: parseInt(kolekcijaId),
+        javno: true,
+      }),
+    });
 
     if (rezultat) {
       Zajednicko.prikaziPoruku("Sadržaj je dodan u kolekciju.", "uspjeh");

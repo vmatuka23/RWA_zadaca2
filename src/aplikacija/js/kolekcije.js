@@ -7,15 +7,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const kontejnerKolekcija = document.getElementById("kontejnerMojihKolekcija");
   const modalDetalji = document.getElementById("modal-detalji");
+  const paginacija = document.getElementById("paginacija");
 
   let aktivnaKolekcija = null;
+  let trenutnaStranica = 1;
 
-  async function ucitajKolekcije() {
-    const podaci = await Zajednicko.posaljiZahtjev("/api/kolekcije");
+  async function ucitajKolekcije(stranica = 1) {
+    const podaci = await Zajednicko.posaljiZahtjev(
+      `/api/kolekcije?page=${stranica}`,
+    );
 
     if (!podaci) return;
 
-    prikaziKolekcije(podaci.kolekcije || podaci);
+    const kolekcije = podaci.kolekcije || podaci;
+    prikaziKolekcije(kolekcije);
+
+    if (podaci.ukupno && podaci.limitPoStranici) {
+      const ukupnoStranica = Math.ceil(podaci.ukupno / podaci.limitPoStranici);
+      prikaziPaginaciju(ukupnoStranica, stranica);
+    }
+    trenutnaStranica = stranica;
+  }
+
+  function prikaziPaginaciju(ukupnoStranica, aktivnaStranica) {
+    if (!paginacija) return;
+
+    paginacija.innerHTML = "";
+
+    if (ukupnoStranica <= 1) return;
+
+    if (aktivnaStranica > 1) {
+      const prethodna = kreirajGumbPaginacije(
+        "« Prethodna",
+        aktivnaStranica - 1,
+      );
+      paginacija.appendChild(prethodna);
+    }
+
+    for (let i = 1; i <= ukupnoStranica; i++) {
+      const gumb = kreirajGumbPaginacije(i.toString(), i);
+      if (i === aktivnaStranica) {
+        gumb.classList.add("aktivna");
+        gumb.disabled = true;
+      }
+      paginacija.appendChild(gumb);
+    }
+
+    if (aktivnaStranica < ukupnoStranica) {
+      const sljedeca = kreirajGumbPaginacije("Sljedeća »", aktivnaStranica + 1);
+      paginacija.appendChild(sljedeca);
+    }
+  }
+
+  function kreirajGumbPaginacije(tekst, stranica) {
+    const gumb = document.createElement("button");
+    gumb.textContent = tekst;
+    gumb.addEventListener("click", () => ucitajKolekcije(stranica));
+    return gumb;
   }
 
   function prikaziKolekcije(kolekcije) {
@@ -124,11 +172,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     kontrole.className = "kontrole-kolekcije";
 
     const gumbVidljivost = document.createElement("button");
-    gumbVidljivost.textContent = kolekcija.javna
+    gumbVidljivost.textContent = kolekcija.javno
       ? "Postavi privatno"
       : "Postavi javno";
     gumbVidljivost.addEventListener("click", () =>
-      promijeniVidljivost(kolekcija.id, !kolekcija.javna),
+      promijeniVidljivost(kolekcija.id, !kolekcija.javno),
     );
 
     const selectSlika = document.createElement("select");
@@ -148,9 +196,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
+    const gumbObrisiKolekciju = document.createElement("button");
+    gumbObrisiKolekciju.className = "gumb-obrisi-kolekciju";
+    gumbObrisiKolekciju.textContent = "Obriši kolekciju";
+    gumbObrisiKolekciju.addEventListener("click", () =>
+      obrisiKolekciju(kolekcija.id),
+    );
+
     kontrole.appendChild(gumbVidljivost);
     kontrole.appendChild(selectSlika);
     kontrole.appendChild(gumbPromijeniSliku);
+    kontrole.appendChild(gumbObrisiKolekciju);
 
     return kontrole;
   }
@@ -258,6 +314,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (rezultat !== null) {
       Zajednicko.prikaziPoruku("Sadržaj je obrisan.", "uspjeh");
       otvoriDetaljeKolekcije(aktivnaKolekcija);
+    }
+  }
+
+  async function obrisiKolekciju(kolekcijaId) {
+    if (
+      !confirm(
+        "Jeste li sigurni da želite obrisati ovu kolekciju? Sav sadržaj će biti izgubljen.",
+      )
+    ) {
+      return;
+    }
+
+    const rezultat = await Zajednicko.posaljiZahtjev(
+      `/api/kolekcije/${kolekcijaId}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (rezultat !== null) {
+      Zajednicko.prikaziPoruku("Kolekcija je obrisana.", "uspjeh");
+      const modal = document.getElementById("modal-kolekcija");
+      if (modal) modal.remove();
+      await ucitajKolekcije(trenutnaStranica);
     }
   }
 

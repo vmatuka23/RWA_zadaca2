@@ -23,6 +23,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const naziv = document.getElementById("nazivKolekcije").value.trim();
     const opis = document.getElementById("opisKolekcije").value.trim();
     const vidljivost = document.getElementById("vidljivostKolekcije").value;
+    const istaknutaSlikaInput = document.getElementById(
+      "istaknutaSlikaKolekcije",
+    );
+    const istaknutaSlika = istaknutaSlikaInput
+      ? istaknutaSlikaInput.value.trim()
+      : "";
     const javno = vidljivost === "javna";
 
     if (!naziv) {
@@ -32,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const rezultat = await Zajednicko.posaljiZahtjev("/api/kolekcije", {
       method: "POST",
-      body: JSON.stringify({ naziv, opis, javno }),
+      body: JSON.stringify({ naziv, opis, javno, istaknutaSlika }),
     });
 
     if (rezultat) {
@@ -69,12 +75,69 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <td>${kolekcija.naziv}</td>
                 <td>${kolekcija.javno ? "Javna" : "Privatna"}</td>
                 <td>
-                  <button class="gumbUredi" data-id="${kolekcija.id}">Uredi</button>
+                  <button class="gumbUredi" data-id="${kolekcija.id}" data-javno="${kolekcija.javno ? 1 : 0}">Uredi</button>
                   <button class="gumbBrisi" data-id="${kolekcija.id}">Obriši</button>
                 </td>
             `;
       listaKolekcija.appendChild(red);
     });
+
+    // Add event listeners for edit buttons
+    listaKolekcija.querySelectorAll(".gumbUredi").forEach((gumb) => {
+      gumb.addEventListener("click", async (e) => {
+        const id = parseInt(e.target.dataset.id);
+        const trenutnoJavno = e.target.dataset.javno === "1";
+        await promijeniVidljivostKolekcije(id, !trenutnoJavno);
+      });
+    });
+
+    // Add event listeners for delete buttons
+    listaKolekcija.querySelectorAll(".gumbBrisi").forEach((gumb) => {
+      gumb.addEventListener("click", async (e) => {
+        const id = parseInt(e.target.dataset.id);
+        await obrisiKolekciju(id);
+      });
+    });
+  }
+
+  async function promijeniVidljivostKolekcije(kolekcijaId, javno) {
+    const rezultat = await Zajednicko.posaljiZahtjev(
+      `/api/kolekcije/${kolekcijaId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ javno }),
+      },
+    );
+
+    if (rezultat) {
+      Zajednicko.prikaziPoruku(
+        "Vidljivost kolekcije je promijenjena.",
+        "uspjeh",
+      );
+      await ucitajKolekcije();
+    }
+  }
+
+  async function obrisiKolekciju(kolekcijaId) {
+    if (
+      !confirm(
+        "Jeste li sigurni da želite obrisati ovu kolekciju? Sav sadržaj će biti izgubljen.",
+      )
+    ) {
+      return;
+    }
+
+    const rezultat = await Zajednicko.posaljiZahtjev(
+      `/api/kolekcije/${kolekcijaId}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (rezultat !== null) {
+      Zajednicko.prikaziPoruku("Kolekcija je obrisana.", "uspjeh");
+      await ucitajKolekcije();
+    }
   }
 
   function popuniSelectKolekcija(kolekcije) {
