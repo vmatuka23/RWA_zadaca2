@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Baza from "../zajednicko/sqliteBaza.js";
 import KolekcijaDAO, { Kolekcija } from "../zajednicko/dao/kolekcijaDAO.js";
 
-const PAGE_LIMIT = 10; // Configured page limit
+const PAGE_LIMIT = 4; // Configured page limit
 
 export class RestKolekcija {
   private kdao: KolekcijaDAO;

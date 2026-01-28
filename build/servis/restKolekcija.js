@@ -1,6 +1,6 @@
 import Baza from "../zajednicko/sqliteBaza.js";
 import KolekcijaDAO from "../zajednicko/dao/kolekcijaDAO.js";
-const PAGE_LIMIT = 10; // Configured page limit
+const PAGE_LIMIT = 4; // Configured page limit
 export class RestKolekcija {
     kdao;
     constructor() {
