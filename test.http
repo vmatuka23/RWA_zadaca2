@@ -202,7 +202,7 @@ Content-Type: application/json
 
 {
   "korisnikId": 7,
-  "kolekcijaId": 2
+  "kolekcijaId": 5
 }
 
 ### 17. POST /api/korisnik-kolekcija - Add another user to collection
@@ -233,7 +233,7 @@ Content-Type: application/json
 }
 
 ### 20. GET /api/korisnik-kolekcija/korisnik/:id - Get collections for user
-GET http://localhost:12222/api/korisnik-kolekcija/korisnik/1
+GET http://localhost:12222/api/korisnik-kolekcija/korisnik/7
 
 ### 21. GET /api/korisnik-kolekcija/kolekcija/:id - Get users in collection
 GET http://localhost:12222/api/korisnik-kolekcija/kolekcija/2
