@@ -36,9 +36,13 @@ function pripremiPutanjeServera(server, konf) {
     const app = new Aplikacija(server, konf);
     app.inicijalizirajStaticneDatoteke();
     // Catch-all ruta za Angular routing - MORA biti zadnja
-    // Sve rute koje nisu /api/* vraćaju index.html za client-side routing
-    server.use((req, res) => {
-        // Za sve rute koje nisu uhvaćene, vrati Angular index.html
+    // Sve rute koje nisu /api/* ili /podaci/* vraćaju index.html za client-side routing
+    server.use((req, res, next) => {
+        // Ne presretaj zahtjeve za statičke resurse
+        if (req.path.startsWith('/podaci/') || req.path.startsWith('/api/')) {
+            return next();
+        }
+        // Za sve ostale rute, vrati Angular index.html
         res.sendFile(path.resolve('angular/browser/index.html'));
     });
 }

@@ -8,6 +8,11 @@
     <section class="sekcija">
       <h2>Informacije o autoru</h2>
       <div class="autor-kartica">
+        <img
+          src="/podaci/profilna.png"
+          alt="Profilna slika autora"
+          style="max-width: 200px; height: auto; margin-right: 20px; border-radius: 8px"
+        />
         <div class="podaci-autora">
           <h3>{{ autor.ime }}</h3>
           <p>
@@ -21,8 +26,26 @@
     <section class="sekcija">
       <h2>ERA Model</h2>
       <div class="era-model-info">
-        <p>ERA model baze podataka dostupan je u dokumentaciji poslužitelja:</p>
-        <p><code>posluzitelj/podaci/ERA_model.png</code></p>
+        <figure style="margin-top: 20px">
+          <a href="/podaci/ERA_model.png" target="_blank" title="Klikni za puni prikaz">
+            <img
+              src="/podaci/ERA_model.png"
+              alt="ERA model baze podataka"
+              style="
+                max-width: 250px;
+                width: 100%;
+                height: auto;
+                cursor: pointer;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                transition: transform 0.2s;
+              "
+            />
+          </a>
+          <figcaption style="margin-top: 10px; font-style: italic; color: #666">
+            Klikni na sliku za puni prikaz
+          </figcaption>
+        </figure>
       </div>
     </section>
 

@@ -15,6 +15,10 @@
         "/^cd c:\\\\Users\\\\Vigo\\\\Documents\\\\RWA\\\\zadaca2\\\\posluzitelj; npm run zadaca$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^cd \\.\\.; cd angular/projekti/zadaca2; ng build$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }
