@@ -15,7 +15,8 @@
 		"start-local": "npm run clean && npm run compile && npm run copy-files && npm run server",
 		"debug": "npm run compile && npm run copy-files && node --enable-source-maps --inspect-brk=9229 build/server.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"zadaca": "npm run clean && npm run compile && npm run copy-files && node --enable-source-maps build/servis/server.js podaci/rwa_vmatuka_conf.csv"
+		"build-angular": "cd ../angular/projekti/zadaca2 && ng build",
+		"zadaca": "npm run build-angular && npm run clean && npm run compile && npm run copy-files && node --enable-source-maps build/servis/server.js podaci/rwa_vmatuka_conf.csv"
 	},
 	"author": "Vigo Matuka",
 	"license": "ISC",
