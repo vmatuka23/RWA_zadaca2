@@ -19,6 +19,10 @@
         "/^cd \\.\\.; cd angular/projekti/zadaca2; ng build$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^cd c:\\\\Users\\\\Vigo\\\\Documents\\\\RWA\\\\zadaca2\\\\posluzitelj; npm install @types/nodemailer --save-dev$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }

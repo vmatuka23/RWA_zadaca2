@@ -15,6 +15,7 @@ CREATE TABLE "korisnik"(
   "email" TEXT NOT NULL,
   "uloga" TEXT NOT NULL CHECK("uloga" IN('gost', 'korisnik', 'moderator', 'admin')),
   "blokiran" INTEGER DEFAULT 0 CHECK("blokiran" IN (0,1)),
+  "aktiviran" INTEGER DEFAULT 0 CHECK("aktiviran" IN (0,1)),
   "ime" TEXT,
   "prezime" TEXT,
   "datumRegistracije" TEXT,
@@ -22,6 +23,19 @@ CREATE TABLE "korisnik"(
     UNIQUE("korisnickoIme"),
   CONSTRAINT "email_UNIQUE"
     UNIQUE("email")
+);
+
+-- Tablica za aktivacijske tokene
+CREATE TABLE "aktivacijski_token"(
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "korisnikId" INTEGER NOT NULL,
+  "token" TEXT NOT NULL UNIQUE,
+  "datumKreiranja" TEXT NOT NULL,
+  "datumIsteka" TEXT NOT NULL,
+  "iskoristen" INTEGER DEFAULT 0 CHECK("iskoristen" IN (0,1)),
+  CONSTRAINT "fk_korisnik_aktivacija"
+    FOREIGN KEY("korisnikId")
+    REFERENCES "korisnik"("id")
 );
 CREATE TABLE "kolekcija"(
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,

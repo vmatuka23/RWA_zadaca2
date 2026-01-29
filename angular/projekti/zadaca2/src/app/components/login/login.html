@@ -5,6 +5,24 @@
     <div class="poruka-greska">{{ errorMessage() }}</div>
   }
 
+  @if (successMessage()) {
+    <div class="poruka-uspjeh">{{ successMessage() }}</div>
+  }
+
+  @if (prikaziPonovnoSlanje()) {
+    <div class="aktivacija-sekcija">
+      <p>Niste primili aktivacijski email?</p>
+      <button
+        type="button"
+        class="gumb-aktivacija"
+        (click)="ponovoPosaljiAktivaciju()"
+        [disabled]="isLoading()"
+      >
+        Ponovno pošalji aktivacijski email
+      </button>
+    </div>
+  }
+
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <div class="grupa-unos">
       <label for="korisnickoIme">Korisničko ime:</label>

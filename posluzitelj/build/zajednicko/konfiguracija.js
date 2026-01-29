@@ -5,7 +5,17 @@ export class Konfiguracija {
         this.konf = this.initKonf();
     }
     initKonf() {
-        return { stranicaLimit: "", tajniKljucSesija: "", tmdbApiKeyV3: "", tmdbApiKeyV4: "" };
+        return {
+            stranicaLimit: "",
+            tajniKljucSesija: "",
+            tmdbApiKeyV3: "",
+            tmdbApiKeyV4: "",
+            smtpHost: "",
+            smtpPort: "",
+            smtpUser: "",
+            smtpPass: "",
+            smtpSecure: ""
+        };
     }
     dajKonf() {
         return this.konf;

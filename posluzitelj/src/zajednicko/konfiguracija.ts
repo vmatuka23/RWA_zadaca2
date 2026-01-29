@@ -4,7 +4,13 @@ type tipKonf = {
   stranicaLimit: string,
   tajniKljucSesija: string,
   tmdbApiKeyV3: string,
-  tmdbApiKeyV4: string
+  tmdbApiKeyV4: string,
+  // SMTP konfiguracija za slanje emailova
+  smtpHost: string,
+  smtpPort: string,
+  smtpUser: string,
+  smtpPass: string,
+  smtpSecure: string
 };
 
 export class Konfiguracija {
@@ -14,7 +20,17 @@ export class Konfiguracija {
   }
 
   private initKonf (){
-    return { stranicaLimit: "", tajniKljucSesija:"", tmdbApiKeyV3: "", tmdbApiKeyV4: "" }
+    return { 
+      stranicaLimit: "", 
+      tajniKljucSesija:"", 
+      tmdbApiKeyV3: "", 
+      tmdbApiKeyV4: "",
+      smtpHost: "",
+      smtpPort: "",
+      smtpUser: "",
+      smtpPass: "",
+      smtpSecure: ""
+    }
   }
 
   public dajKonf() {

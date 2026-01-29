@@ -4,6 +4,7 @@ import { Konfiguracija } from "../zajednicko/konfiguracija.js";
 import { pripremiPutanjeResursTMDB, pripremiPutanjeResursKorisnika, pripremiPutanjeResursKolekcije, pripremiPutanjeResursMultimedije, pripremiPutanjeResursKorisnikKolekcija } from "./servis.js";
 import { Aplikacija } from "../aplikacija/aplikacija.js";
 import { AplikacijaRute } from "../aplikacija/aplikacijaRute.js";
+import { postaviSmtpKonfiguraciju } from "./emailServis.js";
 import * as path from "path";
 const server = express();
 function inicijalizirajPostavkeServera(server) {
@@ -80,6 +81,8 @@ async function main(argv) {
     inicijalizirajPostavkeServera(server);
     if (konf !== null) {
         inicijalizirajSesiju(server, konf);
+        // Postavi SMTP konfiguraciju za email servis
+        postaviSmtpKonfiguraciju(konf.dajKonf());
         pripremiPutanjeServera(server, konf);
     }
     pokreniServer(server, port);

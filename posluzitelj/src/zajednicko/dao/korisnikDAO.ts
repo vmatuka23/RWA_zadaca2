@@ -8,6 +8,7 @@ export interface Korisnik {
     email: string;
     uloga: string; // 'gost' | 'korisnik' | 'moderator' | 'admin'
     blokiran?: number; // 0 ili 1
+    aktiviran?: number; // 0 = nije aktiviran, 1 = aktiviran
     ime?: string;
     prezime?: string;
     datumRegistracije?: string; // dd.mm.yyyy
@@ -23,8 +24,8 @@ export default class KorisnikDAO {
     // Kreiranje korisnika
     async dodajKorisnika(korisnik: Korisnik) {
         const sql = `INSERT INTO korisnik
-            (korisnickoIme, lozinkaHash, sol, email, uloga, blokiran, ime, prezime, datumRegistracije)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            (korisnickoIme, lozinkaHash, sol, email, uloga, blokiran, aktiviran, ime, prezime, datumRegistracije)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const podaci = [
             korisnik.korisnickoIme,
             korisnik.lozinkaHash,
@@ -32,6 +33,7 @@ export default class KorisnikDAO {
             korisnik.email,
             korisnik.uloga,
             korisnik.blokiran ?? 0,
+            korisnik.aktiviran ?? 0, // Novi korisnici nisu aktivirani po defaultu
             korisnik.ime ?? null,
             korisnik.prezime ?? null,
             korisnik.datumRegistracije ?? null
@@ -59,7 +61,7 @@ export default class KorisnikDAO {
     async azurirajKorisnika(korisnik: Korisnik) {
         if (!korisnik.id) throw new Error("Korisnik ID je obavezan za ažuriranje");
         const sql = `UPDATE korisnik SET
-            korisnickoIme = ?, lozinkaHash = ?, sol = ?, email = ?, uloga = ?, blokiran = ?, ime = ?, prezime = ?, datumRegistracije = ?
+            korisnickoIme = ?, lozinkaHash = ?, sol = ?, email = ?, uloga = ?, blokiran = ?, aktiviran = ?, ime = ?, prezime = ?, datumRegistracije = ?
             WHERE id = ?`;
         const podaci = [
             korisnik.korisnickoIme,
@@ -68,6 +70,7 @@ export default class KorisnikDAO {
             korisnik.email,
             korisnik.uloga,
             korisnik.blokiran ?? 0,
+            korisnik.aktiviran ?? 0,
             korisnik.ime ?? null,
             korisnik.prezime ?? null,
             korisnik.datumRegistracije ?? null,
@@ -85,6 +88,19 @@ export default class KorisnikDAO {
     async postaviBlokiran(id: number, blokiran: boolean) {
         const sql = `UPDATE korisnik SET blokiran = ? WHERE id = ?`;
         return await this.db.ubaciAzurirajPodatke(sql, [blokiran ? 1 : 0, id]);
+    }
+
+    // Aktivacija / deaktivacija računa putem emaila
+    async postaviAktiviran(id: number, aktiviran: boolean) {
+        const sql = `UPDATE korisnik SET aktiviran = ? WHERE id = ?`;
+        return await this.db.ubaciAzurirajPodatke(sql, [aktiviran ? 1 : 0, id]);
+    }
+
+    // Dohvati korisnika po email adresi
+    async dajKorisnikaPoEmailu(email: string): Promise<Korisnik | null> {
+        const sql = `SELECT * FROM korisnik WHERE email = ?`;
+        const rez = await this.db.dajPodatke(sql, [email]);
+        return rez.length > 0 ? rez[0] : null;
     }
 
     async povecajBrojNeuspjesnihPrijava(id: number) {

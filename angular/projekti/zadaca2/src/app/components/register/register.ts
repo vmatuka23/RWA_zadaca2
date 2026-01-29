@@ -39,12 +39,12 @@ export class Register {
     this.isLoading.set(true);
 
     this.authService.register(this.registerForm.value).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.isLoading.set(false);
-        this.successMessage.set('Registracija uspješna! Preusmjeravanje na prijavu...');
+        this.successMessage.set(response?.poruka || 'Registracija uspješna! Provjerite email za aktivacijski link.');
         setTimeout(() => {
           this.router.navigate(['/login']);
-        }, 2000);
+        }, 3000);
       },
       error: (err) => {
         this.isLoading.set(false);
