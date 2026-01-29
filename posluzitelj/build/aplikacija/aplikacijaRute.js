@@ -1,24 +1,13 @@
-import { provjeriAutentikaciju, generirajSol as generirajSolAut, provjeriUlogu } from "../servis/autentikacija.js";
+import { provjeriAutentikaciju, generirajSol as generirajSolAut } from "../servis/autentikacija.js";
 import Baza from "../zajednicko/sqliteBaza.js";
 import KorisnikDAO from "../zajednicko/dao/korisnikDAO.js";
 import { kreirajSHA256 } from "../zajednicko/kodovi.js";
-import { readFileSync } from "fs";
-import { resolve } from "path";
 export class AplikacijaRute {
     kdao;
     constructor() {
         const db = new Baza("podaci/RWA2025vmatuka23.sqlite");
         db.spoji();
         this.kdao = new KorisnikDAO(db);
-    }
-    //Učitaj HTML datoteku sa putanje
-    ucitajHTML(putanja) {
-        try {
-            return readFileSync(resolve(putanja), 'utf-8');
-        }
-        catch (err) {
-            return "<h1>Greška 404 - Stranica nije pronađena</h1>";
-        }
     }
     /**
      * POST /login - Prijava korisnika
@@ -44,6 +33,11 @@ export class AplikacijaRute {
             // hash iz baze: koristi kreirajSHA256 sa soli
             const sol = korisnik.sol;
             const hashUneseneLozinke = kreirajSHA256(lozinka, sol);
+            console.log('Login attempt for:', korisnickoIme);
+            console.log('Salt from DB:', sol);
+            console.log('Computed hash:', hashUneseneLozinke);
+            console.log('Stored hash:', korisnik.lozinkaHash);
+            console.log('Match:', hashUneseneLozinke === korisnik.lozinkaHash);
             if (hashUneseneLozinke !== korisnik.lozinkaHash) {
                 await this.kdao.povecajBrojNeuspjesnihPrijava(korisnik.id);
                 // provjeri limit 3
@@ -66,11 +60,20 @@ export class AplikacijaRute {
                 ime: korisnik.ime || "",
                 prezime: korisnik.prezime || ""
             };
-            // Reset broja neuspješnih prijava
-            await this.kdao.resetirajBrojNeuspjesnihPrijava(korisnik.id);
-            odgovor.json({
-                poruka: "Uspješno ste prijavljeni",
-                korisnik: zahtjev.session.korisnik
+            // Eksplicitno spremi sesiju prije slanja odgovora
+            zahtjev.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    odgovor.status(500).json({ greska: "Greška pri spremanju sesije" });
+                    return;
+                }
+                // Reset broja neuspješnih prijava
+                this.kdao.resetirajBrojNeuspjesnihPrijava(korisnik.id);
+                console.log('Login successful, session saved for:', korisnik.korisnickoIme);
+                odgovor.json({
+                    poruka: "Uspješno ste prijavljeni",
+                    korisnik: zahtjev.session.korisnik
+                });
             });
         }
         catch (err) {
@@ -152,60 +155,14 @@ export class AplikacijaRute {
         }
         odgovor.json(zahtjev.session.korisnik);
     }
-    // =================== PAGE RENDERING ROUTES ===================
-    //GET - Početna stranica
-    prikazIndex(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/index.html");
-        odgovor.send(html);
-    }
-    //GET /prijava
-    prikazPrijava(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/prijava.html");
-        odgovor.send(html);
-    }
-    //GET /registracija
-    prikazRegistracija(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/registracija.html");
-        odgovor.send(html);
-    }
-    // GET /kolekcije
-    prikazKolekcije(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/kolekcije.html");
-        odgovor.send(html);
-    }
-    // GET /sadrzaj
-    prikazSadrzaj(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/sadrzaj.html");
-        odgovor.send(html);
-    }
-    // GET /moderator
-    prikazModerator(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/moderator.html");
-        odgovor.send(html);
-    }
-    // GET /korisnici
-    prikazKorisnici(zahtjev, odgovor) {
-        const html = this.ucitajHTML("src/aplikacija/html/korisnici.html");
-        odgovor.send(html);
-    }
-    // Registriraj sve rute
+    // Registriraj sve API rute
     pripremiRute(server) {
-        // ===== JAVNE RUTE =====
-        server.get("/", (req, res) => this.prikazIndex(req, res));
-        server.get("/prijava", (req, res) => this.prikazPrijava(req, res));
-        server.get("/registracija", (req, res) => this.prikazRegistracija(req, res));
-        // ===== AUTENTIFIKACIJSKE RUTE =====
-        server.post("/login", (req, res) => this.login(req, res));
-        server.post("/register", (req, res) => this.register(req, res));
-        server.post("/logout", (req, res) => this.logout(req, res));
-        // ===== ZAŠTIĆENE RUTE - REGISTRIRANI KORISNICI =====
-        server.get("/kolekcije", provjeriAutentikaciju, (req, res) => this.prikazKolekcije(req, res));
-        server.get("/sadrzaj", provjeriAutentikaciju, (req, res) => this.prikazSadrzaj(req, res));
-        server.get("/korisnik", provjeriAutentikaciju, (req, res) => this.dajKorisnika(req, res));
-        // ===== ZAŠTIĆENE RUTE - MODERATOR =====
-        server.get("/moderator", provjeriAutentikaciju, provjeriUlogu(["moderator", "admin"]), (req, res) => this.prikazModerator(req, res));
-        // ===== ZAŠTIĆENE RUTE - ADMIN =====
-        server.get("/korisnici", provjeriAutentikaciju, provjeriUlogu(["admin"]), (req, res) => this.prikazKorisnici(req, res));
+        // ===== AUTENTIFIKACIJSKE API RUTE =====
+        server.post("/api/login", (req, res) => this.login(req, res));
+        server.post("/api/register", (req, res) => this.register(req, res));
+        server.post("/api/logout", (req, res) => this.logout(req, res));
+        // ===== KORISNIK INFO =====
+        server.get("/api/korisnik", provjeriAutentikaciju, (req, res) => this.dajKorisnika(req, res));
     }
 }
 //# sourceMappingURL=aplikacijaRute.js.map

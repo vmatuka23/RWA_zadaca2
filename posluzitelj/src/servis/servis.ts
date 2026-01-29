@@ -107,9 +107,21 @@ export function pripremiPutanjeResursKorisnika(server:Application,konf:Konfigura
   );
 
   // Admin-only endpointovi za upravljanje korisnicima
+  server.delete(
+    "/api/korisnici/id/:id",
+    restKorisnik.deleteKorisnikById.bind(restKorisnik),
+  );
   server.put(
     "/api/korisnici/:id/blokiraj",
     restKorisnik.blokirajKorisnika.bind(restKorisnik),
+  );
+  server.post(
+    "/api/korisnici/:id/aktiviraj",
+    restKorisnik.aktivirajKorisnika.bind(restKorisnik),
+  );
+  server.post(
+    "/api/korisnici/:id/deaktiviraj",
+    restKorisnik.deaktivirajKorisnika.bind(restKorisnik),
   );
   server.put(
     "/api/korisnici/:id/uloga",

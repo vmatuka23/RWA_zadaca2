@@ -1,6 +1,10 @@
 <div class="kontejner-korisnici">
   <h2>Upravljanje korisnicima</h2>
 
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
   @if (isLoading()) {
     <p>Učitavanje...</p>
   } @else if (users().length === 0) {
@@ -27,15 +31,40 @@
             <td>{{ user.email }}</td>
             <td>{{ user.ime || '-' }}</td>
             <td>{{ user.prezime || '-' }}</td>
-            <td>{{ user.uloga }}</td>
-            <td>{{ user.aktiviran ? 'Aktivan' : 'Neaktivan' }}</td>
             <td>
-              @if (user.aktiviran) {
-                <button (click)="deactivateUser(user.id)">Deaktiviraj</button>
+              @if (user.uloga === 'admin') {
+                <span class="uloga-admin">{{ user.uloga }}</span>
               } @else {
-                <button (click)="activateUser(user.id)">Aktiviraj</button>
+                <select
+                  [value]="user.uloga"
+                  (change)="changeRole(user.id, $event)"
+                  class="select-uloga"
+                >
+                  <option value="korisnik">korisnik</option>
+                  <option value="moderator">moderator</option>
+                </select>
               }
-              <button (click)="deleteUser(user.id)" class="gumb-obrisi">Obriši</button>
+            </td>
+            <td>
+              @if (user.uloga !== 'admin') {
+                <span [class]="user.aktiviran ? 'status-aktivan' : 'status-neaktivan'">
+                  {{ user.aktiviran ? 'Aktivan' : 'Blokiran' }}
+                </span>
+              } @else {
+                <span class="status-aktivan">Aktivan</span>
+              }
+            </td>
+            <td>
+              @if (user.uloga !== 'admin') {
+                @if (user.aktiviran) {
+                  <button (click)="deactivateUser(user.id)" class="gumb-blokiraj">Blokiraj</button>
+                } @else {
+                  <button (click)="activateUser(user.id)" class="gumb-aktiviraj">Odblokiraj</button>
+                }
+                <button (click)="deleteUser(user.id)" class="gumb-obrisi">Obriši</button>
+              } @else {
+                <span class="admin-protected">-</span>
+              }
             </td>
           </tr>
         }

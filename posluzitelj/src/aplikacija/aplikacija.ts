@@ -48,18 +48,35 @@ export class Aplikacija {
             cookie: {
                 httpOnly: true,
                 secure: false, // true ako je HTTPS, na localhost treba false
+                sameSite: 'lax', // Allow cookies to be sent with navigation
                 maxAge: 1000 * 60 * 60 // 1 sat
             }
         }));
+        
+        // Debug middleware to log session info
+        this.server.use((req, res, next) => {
+            if (req.path.startsWith('/api')) {
+                console.log(`API Request: ${req.method} ${req.path}, Session User:`, req.session?.korisnik?.korisnickoIme || 'Not logged in');
+            }
+            next();
+        });
     }
 
-    //Postavlja statičke datoteke iz aplikacija/html i css foldera
+    //Postavlja statičke datoteke - Angular aplikacija i multimedija
     public inicijalizirajStaticneDatoteke(): void {
-        // Postavi HTML i CSS fajlove
-        this.server.use(express.static("src/aplikacija/html"));
-        this.server.use(express.static("src/aplikacija/css"));
-        this.server.use(express.static("src/aplikacija/js"));
-        this.server.use(express.static("dokumentacija"));
+        // Serviranje Angular aplikacije iz angular/browser foldera
+        this.server.use(express.static("angular/browser", {
+            maxAge: '1d',
+            setHeaders: (res, path) => {
+                // Postavi ispravne MIME tipove
+                if (path.endsWith('.js')) {
+                    res.setHeader('Content-Type', 'application/javascript');
+                } else if (path.endsWith('.css')) {
+                    res.setHeader('Content-Type', 'text/css');
+                }
+            }
+        }));
+        // Serviranje multimedije
         this.server.use("/podaci", express.static("podaci"));
     }
 

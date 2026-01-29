@@ -22,7 +22,7 @@ export class Authentication {
   }
 
   fetchCurrentUser(): Observable<User | null> {
-    return this.http.get<User>(`${this.config.apiBaseUrl}/korisnik`).pipe(
+    return this.http.get<User>(`${this.config.apiBaseUrl}/api/korisnik`).pipe(
       tap(user => {
         this.currentUserSubject.next(user);
         this.currentUser.set(user);
@@ -36,7 +36,7 @@ export class Authentication {
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.config.apiBaseUrl}/login`, credentials).pipe(
+    return this.http.post<LoginResponse>(`${this.config.apiBaseUrl}/api/login`, credentials).pipe(
       tap(response => {
         if (response.korisnik) {
           this.currentUserSubject.next(response.korisnik);
@@ -47,11 +47,11 @@ export class Authentication {
   }
 
   register(data: RegisterRequest): Observable<any> {
-    return this.http.post(`${this.config.apiBaseUrl}/register`, data);
+    return this.http.post(`${this.config.apiBaseUrl}/api/register`, data);
   }
 
   logout(): Observable<any> {
-    return this.http.post(`${this.config.apiBaseUrl}/logout`, {}).pipe(
+    return this.http.post(`${this.config.apiBaseUrl}/api/logout`, {}).pipe(
       tap(() => {
         this.currentUserSubject.next(null);
         this.currentUser.set(null);

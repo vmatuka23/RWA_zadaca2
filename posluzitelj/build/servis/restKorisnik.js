@@ -29,11 +29,17 @@ export class RestKorisnik {
                 email: k.email,
                 uloga: k.uloga,
                 blokiran: k.blokiran,
+                aktiviran: !k.blokiran, // Angular expects 'aktiviran' field
                 ime: k.ime,
                 prezime: k.prezime,
                 datumRegistracije: k.datumRegistracije
             }));
-            odgovor.json(safeKorisnici);
+            // Return with pagination format that Angular expects
+            odgovor.json({
+                korisnici: safeKorisnici,
+                ukupno: safeKorisnici.length,
+                limitPoStranici: safeKorisnici.length
+            });
         }
         catch (err) {
             odgovor.status(500).json({ greska: err.message });
@@ -210,6 +216,63 @@ export class RestKorisnik {
             odgovor.status(500).json({ greska: err.message });
         }
     }
+    // POST /api/korisnici/:id/aktiviraj - aktiviranje korisnika (deblokiranje)
+    async aktivirajKorisnika(zahtjev, odgovor) {
+        odgovor.type("application/json");
+        if (!zahtjev.session?.korisnik) {
+            odgovor.status(401).json({ greska: "Morate biti prijavljeni" });
+            return;
+        }
+        const uloga = zahtjev.session.korisnik.uloga;
+        if (uloga !== "admin") {
+            odgovor.status(403).json({ greska: "Morate biti admin da aktivirate korisnike" });
+            return;
+        }
+        const korisnikId = Number(zahtjev.params["id"]);
+        try {
+            const korisnik = await this.kdao.dajKorisnikaPoId(korisnikId);
+            if (!korisnik) {
+                odgovor.status(404).json({ greska: "Korisnik ne postoji" });
+                return;
+            }
+            await this.kdao.postaviBlokiran(korisnikId, false);
+            odgovor.json({ status: "uspjeh", poruka: "Korisnik je aktiviran" });
+        }
+        catch (err) {
+            odgovor.status(500).json({ greska: err.message });
+        }
+    }
+    // POST /api/korisnici/:id/deaktiviraj - deaktiviranje korisnika (blokiranje)
+    async deaktivirajKorisnika(zahtjev, odgovor) {
+        odgovor.type("application/json");
+        if (!zahtjev.session?.korisnik) {
+            odgovor.status(401).json({ greska: "Morate biti prijavljeni" });
+            return;
+        }
+        const uloga = zahtjev.session.korisnik.uloga;
+        const adminId = zahtjev.session.korisnik.id;
+        if (uloga !== "admin") {
+            odgovor.status(403).json({ greska: "Morate biti admin da deaktivirate korisnike" });
+            return;
+        }
+        const korisnikId = Number(zahtjev.params["id"]);
+        try {
+            if (korisnikId === adminId) {
+                odgovor.status(403).json({ greska: "Ne možete deaktivirati sami sebe" });
+                return;
+            }
+            const korisnik = await this.kdao.dajKorisnikaPoId(korisnikId);
+            if (!korisnik) {
+                odgovor.status(404).json({ greska: "Korisnik ne postoji" });
+                return;
+            }
+            await this.kdao.postaviBlokiran(korisnikId, true);
+            odgovor.json({ status: "uspjeh", poruka: "Korisnik je deaktiviran" });
+        }
+        catch (err) {
+            odgovor.status(500).json({ greska: err.message });
+        }
+    }
     // PUT /api/korisnici/:id/uloga - promjena uloge korisnika od strane admina
     async promijeniUlogu(zahtjev, odgovor) {
         odgovor.type("application/json");
@@ -244,6 +307,45 @@ export class RestKorisnik {
             };
             await this.kdao.azurirajKorisnika(azuriraniKorisnik);
             odgovor.json({ status: "uspjeh", poruka: `Uloga korisnika promijenjena na '${novaUloga}'` });
+        }
+        catch (err) {
+            odgovor.status(500).json({ greska: err.message });
+        }
+    }
+    // DELETE /api/korisnici/id/:id - brisanje korisnika po ID-u od strane admina
+    async deleteKorisnikById(zahtjev, odgovor) {
+        odgovor.type("application/json");
+        if (!zahtjev.session?.korisnik) {
+            odgovor.status(401).json({ greska: "Morate biti prijavljeni" });
+            return;
+        }
+        const uloga = zahtjev.session.korisnik.uloga;
+        const adminId = zahtjev.session.korisnik.id;
+        if (uloga !== "admin") {
+            odgovor.status(403).json({ greska: "Morate biti admin da brišete korisnike" });
+            return;
+        }
+        const korisnikId = Number(zahtjev.params["id"]);
+        if (isNaN(korisnikId)) {
+            odgovor.status(400).json({ greska: "Neispravan ID korisnika" });
+            return;
+        }
+        try {
+            if (korisnikId === adminId) {
+                odgovor.status(403).json({ greska: "Ne možete obrisati sami sebe" });
+                return;
+            }
+            const korisnik = await this.kdao.dajKorisnikaPoId(korisnikId);
+            if (!korisnik) {
+                odgovor.status(404).json({ greska: "Korisnik ne postoji" });
+                return;
+            }
+            if (korisnik.uloga === "admin") {
+                odgovor.status(403).json({ greska: "Ne možete obrisati admin korisnika" });
+                return;
+            }
+            await this.kdao.obrisiKorisnika(korisnikId);
+            odgovor.json({ status: "uspjeh", poruka: "Korisnik je obrisan" });
         }
         catch (err) {
             odgovor.status(500).json({ greska: err.message });

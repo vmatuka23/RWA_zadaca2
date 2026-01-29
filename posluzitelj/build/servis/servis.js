@@ -78,7 +78,10 @@ export function pripremiPutanjeResursKorisnika(server, konf) {
     server.put("/api/korisnici/:korime", restKorisnik.putKorisnik.bind(restKorisnik));
     server.delete("/api/korisnici/:korime", restKorisnik.deleteKorisnik.bind(restKorisnik));
     // Admin-only endpointovi za upravljanje korisnicima
+    server.delete("/api/korisnici/id/:id", restKorisnik.deleteKorisnikById.bind(restKorisnik));
     server.put("/api/korisnici/:id/blokiraj", restKorisnik.blokirajKorisnika.bind(restKorisnik));
+    server.post("/api/korisnici/:id/aktiviraj", restKorisnik.aktivirajKorisnika.bind(restKorisnik));
+    server.post("/api/korisnici/:id/deaktiviraj", restKorisnik.deaktivirajKorisnika.bind(restKorisnik));
     server.put("/api/korisnici/:id/uloga", restKorisnik.promijeniUlogu.bind(restKorisnik));
 }
 //# sourceMappingURL=servis.js.map

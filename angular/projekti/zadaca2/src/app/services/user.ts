@@ -30,7 +30,7 @@ export class UserService {
   }
 
   deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.config.apiBaseUrl}/api/korisnici/${id}`);
+    return this.http.delete(`${this.config.apiBaseUrl}/api/korisnici/id/${id}`);
   }
 
   activateUser(id: number): Observable<any> {
@@ -39,5 +39,9 @@ export class UserService {
 
   deactivateUser(id: number): Observable<any> {
     return this.http.post(`${this.config.apiBaseUrl}/api/korisnici/${id}/deaktiviraj`, {});
+  }
+
+  changeRole(id: number, novaUloga: string): Observable<any> {
+    return this.http.put(`${this.config.apiBaseUrl}/api/korisnici/${id}/uloga`, { novaUloga });
   }
 }

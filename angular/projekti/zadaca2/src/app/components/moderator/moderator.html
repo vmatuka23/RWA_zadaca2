@@ -4,26 +4,69 @@
 
   <div class="sekcije">
     <section>
-      <h3>Pregled svih kolekcija</h3>
+      <h3>Statistika</h3>
       <p>Ukupno kolekcija: {{ totalCollections() }}</p>
-      <button (click)="loadAllCollections()">Učitaj sve kolekcije</button>
-    </section>
-
-    <section>
-      <h3>Pregled multimedije</h3>
       <p>Ukupno multimedijskih datoteka: {{ totalMultimedia() }}</p>
-      <button (click)="loadAllMultimedia()">Učitaj sve datoteke</button>
     </section>
   </div>
 
   @if (collections().length > 0) {
     <div class="lista-kolekcija">
       <h3>Kolekcije</h3>
-      @for (collection of collections(); track collection.id) {
-        <div class="stavka-kolekcije">
-          <strong>{{ collection.naziv }}</strong> - {{ collection.javno ? 'Javna' : 'Privatna' }}
-        </div>
-      }
+      <table>
+        <thead>
+          <tr>
+            <th>Naziv</th>
+            <th>Status</th>
+            <th>Akcije</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (collection of collections(); track collection.id) {
+            <tr>
+              <td>
+                <strong>{{ collection.naziv }}</strong>
+              </td>
+              <td>{{ collection.javno ? 'Javna' : 'Privatna' }}</td>
+              <td>
+                <button (click)="togglePublic(collection)">
+                  {{ collection.javno ? 'Postavi privatnu' : 'Postavi javnu' }}
+                </button>
+                <button (click)="deleteCollection(collection.id!)" class="gumb-obrisi">
+                  Obriši
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dodaj-korisnika">
+      <h3>Dodaj korisnika u kolekciju</h3>
+      <div class="forma">
+        <label>
+          Kolekcija:
+          <select [(ngModel)]="selectedCollectionId">
+            <option [value]="null">-- Odaberi kolekciju --</option>
+            @for (collection of collections(); track collection.id) {
+              <option [value]="collection.id">{{ collection.naziv }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Korisnik:
+          <select [(ngModel)]="selectedUserId">
+            <option [value]="null">-- Odaberi korisnika --</option>
+            @for (user of users(); track user.id) {
+              <option [value]="user.id">{{ user.korisnickoIme }}</option>
+            }
+          </select>
+        </label>
+
+        <button (click)="addUserToCollection()">Dodaj</button>
+      </div>
     </div>
   }
 </div>
