@@ -78,7 +78,7 @@
       </section>
 
       <section id="sekcijаSpecifikacija">
-        <h2>Specifikacija REST API-ja</h2>
+        <h2>Specifikacija REST API-ja (Zadaća 1)</h2>
 
         <table id="tabelaEndpointa">
           <thead>
@@ -103,9 +103,111 @@
               <td class="implementirano">Da</td>
             </tr>
             <tr id="redEndpoint3">
+              <td class="endpoint">/api/kolekcije/:id</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Dohvati kolekciju po ID-u</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint4">
+              <td class="endpoint">/api/kolekcije/:id</td>
+              <td class="metoda">PUT</td>
+              <td class="opis">Ažuriraj kolekciju</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint5">
+              <td class="endpoint">/api/kolekcije/:id</td>
+              <td class="metoda">DELETE</td>
+              <td class="opis">Obriši kolekciju</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint6">
+              <td class="endpoint">/api/kolekcije/javne</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Dohvati javne kolekcije</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint7">
               <td class="endpoint">/api/korisnici</td>
               <td class="metoda">GET</td>
               <td class="opis">Dohvati sve korisnike</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint8">
+              <td class="endpoint">/api/korisnici</td>
+              <td class="metoda">POST</td>
+              <td class="opis">Registracija korisnika</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint9">
+              <td class="endpoint">/api/korisnici/:korime/prijava</td>
+              <td class="metoda">POST</td>
+              <td class="opis">Prijava korisnika</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint10">
+              <td class="endpoint">/api/korisnici/:id</td>
+              <td class="metoda">PUT</td>
+              <td class="opis">Ažuriraj korisnika</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint11">
+              <td class="endpoint">/api/korisnici/:id/blokiraj</td>
+              <td class="metoda">PUT</td>
+              <td class="opis">Blokiraj/odblokiraj korisnika</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint12">
+              <td class="endpoint">/api/multimedija</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Dohvati multimedijske sadržaje</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint13">
+              <td class="endpoint">/api/multimedija</td>
+              <td class="metoda">POST</td>
+              <td class="opis">Dodaj multimedijski sadržaj (upload)</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint14">
+              <td class="endpoint">/api/multimedija/url</td>
+              <td class="metoda">POST</td>
+              <td class="opis">Dodaj multimedijski sadržaj (URL)</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint15">
+              <td class="endpoint">/api/multimedija/:id</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Dohvati multimedijski sadržaj po ID-u</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint16">
+              <td class="endpoint">/api/multimedija/:id</td>
+              <td class="metoda">PUT</td>
+              <td class="opis">Ažuriraj multimedijski sadržaj</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint17">
+              <td class="endpoint">/api/multimedija/:id</td>
+              <td class="metoda">DELETE</td>
+              <td class="opis">Obriši multimedijski sadržaj</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint18">
+              <td class="endpoint">/api/tmdb/zanr</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Dohvati filmske žanrove (TMDB)</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint19">
+              <td class="endpoint">/api/tmdb/filmovi</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Pretraži filmove po nazivu (TMDB)</td>
+              <td class="implementirano">Da</td>
+            </tr>
+            <tr id="redEndpoint20">
+              <td class="endpoint">/api/tmdb/nasumceFilm</td>
+              <td class="metoda">GET</td>
+              <td class="opis">Dohvati nasumične filmove (TMDB)</td>
               <td class="implementirano">Da</td>
             </tr>
           </tbody>
@@ -113,7 +215,7 @@
       </section>
 
       <section id="sekcijаFunkcionalniZahtjevi">
-        <h2>Status funkcionalnih zahtjeva</h2>
+        <h2>Status funkcionalnih zahtjeva - Zadaća 1 (Web stranice)</h2>
 
         <table id="tabelaFunkcionalniZahtjevi">
           <thead>
@@ -130,19 +232,180 @@
               <td class="statusImplementacije">Da</td>
             </tr>
             <tr id="redZahtjev2">
+              <td class="uloga">Gost</td>
+              <td class="funkcionalnost">Prijava na sustav</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev3">
+              <td class="uloga">Gost</td>
+              <td class="funkcionalnost">Registracija na sustav</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev4">
               <td class="uloga">Korisnik</td>
               <td class="funkcionalnost">Upravljanje vlastitim kolekcijama</td>
               <td class="statusImplementacije">Da</td>
             </tr>
-            <tr id="redZahtjev3">
+            <tr id="redZahtjev5">
+              <td class="uloga">Korisnik</td>
+              <td class="funkcionalnost">
+                Dodavanje multimedijalnog sadržaja u kolekcije
+              </td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev6">
+              <td class="uloga">Korisnik</td>
+              <td class="funkcionalnost">Pregled sadržaja kolekcija</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev7">
+              <td class="uloga">Korisnik</td>
+              <td class="funkcionalnost">Pretraga filmova putem TMDB API-ja</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev8">
               <td class="uloga">Moderator</td>
               <td class="funkcionalnost">Kreiranje kolekcija</td>
               <td class="statusImplementacije">Da</td>
             </tr>
-            <tr id="redZahtjev4">
-              <td class="uloga">Administrator</td>
-              <td class="funkcionalnost">Upravljanje korisnicima</td>
+            <tr id="redZahtjev9">
+              <td class="uloga">Moderator</td>
+              <td class="funkcionalnost">
+                Upravljanje vidljivošću kolekcija (javno/privatno)
+              </td>
               <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev10">
+              <td class="uloga">Moderator</td>
+              <td class="funkcionalnost">
+                Dodjeljivanje korisnika kolekcijama
+              </td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev11">
+              <td class="uloga">Moderator</td>
+              <td class="funkcionalnost">Brisanje kolekcija</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev12">
+              <td class="uloga">Administrator</td>
+              <td class="funkcionalnost">
+                Upravljanje korisnicima (pregled, blokiranje)
+              </td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev13">
+              <td class="uloga">Administrator</td>
+              <td class="funkcionalnost">Promjena uloga korisnika</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev14">
+              <td class="uloga">Svi</td>
+              <td class="funkcionalnost">
+                Automatsko blokiranje nakon 3 neuspješne prijave
+              </td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev15">
+              <td class="uloga">Svi</td>
+              <td class="funkcionalnost">Navigacija između stranica</td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+            <tr id="redZahtjev16">
+              <td class="uloga">Svi</td>
+              <td class="funkcionalnost">
+                Pregled metapodataka multimedijskog sadržaja
+              </td>
+              <td class="statusImplementacije">Da</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sekcijаFunkcionalniZahtjeviZadaca2">
+        <h2>Status funkcionalnih zahtjeva - Zadaća 2 (Angular aplikacija)</h2>
+
+        <table id="tabelaFunkcionalniZahtjeviZadaca2">
+          <thead>
+            <tr>
+              <th id="naslov-funkcionalnost2">Funkcionalnost</th>
+              <th id="naslov-statusImplementacije2">Implementirano</th>
+              <th id="naslov-napomena">Napomena</th>
+            </tr>
+          </thead>
+          <tbody id="tijeloTabelaFunkcionalnostZadaca2">
+            <tr id="redZahtjev2_1">
+              <td class="funkcionalnost">
+                Aktivacija korisničkog računa putem e-maila
+              </td>
+              <td class="statusImplementacije">Ne</td>
+              <td class="napomena">Nije implementirano u Angular aplikaciji</td>
+            </tr>
+            <tr id="redZahtjev2_2">
+              <td class="funkcionalnost">
+                Pretraga javnog multimedijalnog sadržaja (minimum 3 znaka)
+              </td>
+              <td class="statusImplementacije">Ne</td>
+              <td class="napomena">
+                Nije implementirano u Angular aplikaciji (postoji samo TMDB
+                pretraga na serveru)
+              </td>
+            </tr>
+            <tr id="redZahtjev2_3">
+              <td class="funkcionalnost">
+                Filtriranje javnog multimedijalnog sadržaja po autoru
+              </td>
+              <td class="statusImplementacije">Ne</td>
+              <td class="napomena">Nije implementirano u Angular aplikaciji</td>
+            </tr>
+            <tr id="redZahtjev2_4">
+              <td class="funkcionalnost">
+                Filtriranje javnog multimedijalnog sadržaja po datumu
+              </td>
+              <td class="statusImplementacije">Ne</td>
+              <td class="napomena">Nije implementirano u Angular aplikaciji</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sekcijаNefunkcionalniZahtjeviZadaca2">
+        <h2>Status nefunkcionalnih zahtjeva - Zadaća 2 (Angular aplikacija)</h2>
+
+        <table id="tabelaNefunkcionalniZahtjeviZadaca2">
+          <thead>
+            <tr>
+              <th id="naslov-zahtjev">Zahtjev</th>
+              <th id="naslov-statusImplementacije3">Implementirano</th>
+              <th id="naslov-napomena2">Napomena</th>
+            </tr>
+          </thead>
+          <tbody id="tijeloTabelaNefunkcionalnostZadaca2">
+            <tr id="redNefunkZahtjev2_1">
+              <td class="zahtjev">Responzivni dizajn</td>
+              <td class="statusImplementacije">Djelomično</td>
+              <td class="napomena">
+                Osnovni Angular template, nije prilagođen za mobilne uređaje
+              </td>
+            </tr>
+            <tr id="redNefunkZahtjev2_2">
+              <td class="zahtjev">Validacija unosa na klijentu</td>
+              <td class="statusImplementacije">Ne</td>
+              <td class="napomena">Nije implementirano u Angular aplikaciji</td>
+            </tr>
+            <tr id="redNefunkZahtjev2_3">
+              <td class="zahtjev">
+                Korisničko iskustvo (loading indikatori, error handling)
+              </td>
+              <td class="statusImplementacije">Ne</td>
+              <td class="napomena">Nije implementirano u Angular aplikaciji</td>
+            </tr>
+            <tr id="redNefunkZahtjev2_4">
+              <td class="zahtjev">
+                Dokumentacija dostupna kroz rutu /dokumentacija
+              </td>
+              <td class="statusImplementacije">Da</td>
+              <td class="napomena">Implementirano kroz Angular komponentu</td>
             </tr>
           </tbody>
         </table>
@@ -152,16 +415,54 @@
         <h2>Napomene i poznati problemi</h2>
 
         <article id="napomeneIzdanje">
-          <h3>Poznati problemi</h3>
+          <h3>Zadaća 1 - Poznati problemi (Web stranice)</h3>
           <ul id="listaProblema">
-            <li id="problem1">
-              Na web stranici moderator ne može pristupiti kolekcijama
-            </li>
+            <li id="problem1">Manje validacijske greške na nekim formama</li>
             <li id="problem2">
-              Nije moguće dodavati multimedijske sadržaje na web stranici
+              Poboljšanja korisničkog iskustva moguća u budućim verzijama
             </li>
-            <li id="problem3">
-              Sekcija "Detalji kolekcije" na stranici Moje kolekcije ne radi
+          </ul>
+
+          <h3>Zadaća 2 - Trenutno stanje (Angular aplikacija)</h3>
+          <ul id="listaProblemZadaca2">
+            <li id="problem2_1">
+              Angular aplikacija sadrži samo osnovni template bez
+              implementiranih funkcionalnosti Task 2
+            </li>
+            <li id="problem2_2">
+              Sve funkcionalnosti Task 1 su implementirane samo na web
+              stranicama (posluzitelj/build/aplikacija/html)
+            </li>
+            <li id="problem2_3">
+              REST API servisi na poslužitelju su implementirani i funkcionalni
+            </li>
+            <li id="problem2_4">
+              Nedostaje integracija Angular aplikacije s REST API-jima
+            </li>
+            <li id="problem2_5">Nedostaje implementacija email aktivacije</li>
+            <li id="problem2_6">
+              Nedostaje implementacija pretrage i filtriranja multimedijalnog
+              sadržaja u Angular aplikaciji
+            </li>
+            <li id="problem2_7">
+              Dokumentacija je dostupna na ruti /dokumentacija u Angular
+              aplikaciji
+            </li>
+          </ul>
+
+          <h3>Struktura projekta</h3>
+          <ul id="listaStruktura">
+            <li id="struktura1">
+              <strong>Zadaća 1 - Web stranice (HTML/JS):</strong>
+              posluzitelj/src/aplikacija/ i posluzitelj/build/aplikacija/
+            </li>
+            <li id="struktura2">
+              <strong>Zadaća 2 - Angular aplikacija:</strong>
+              angular/projekti/zadaca2/
+            </li>
+            <li id="struktura3">
+              <strong>REST API poslužitelj:</strong> posluzitelj/src/servis/ -
+              Svi endpointi implementirani i funkcionalni
             </li>
           </ul>
         </article>

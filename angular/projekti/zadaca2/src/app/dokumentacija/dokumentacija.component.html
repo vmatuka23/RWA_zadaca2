@@ -1,0 +1,188 @@
+<div class="dokumentacija-container">
+  <header class="header">
+    <h1>Dokumentacija projekta - Multimedijska zbirka</h1>
+  </header>
+
+  <main class="main-content">
+    <!-- Informacije o autoru -->
+    <section class="sekcija">
+      <h2>Informacije o autoru</h2>
+      <div class="autor-kartica">
+        <div class="podaci-autora">
+          <h3>{{ autor.ime }}</h3>
+          <p>
+            Email: <a [href]="'mailto:' + autor.email">{{ autor.email }}</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ERA Model -->
+    <section class="sekcija">
+      <h2>ERA Model</h2>
+      <div class="era-model-info">
+        <p>ERA model baze podataka dostupan je u dokumentaciji poslužitelja:</p>
+        <p><code>posluzitelj/podaci/ERA_model.png</code></p>
+      </div>
+    </section>
+
+    <!-- REST API Specifikacija - Zadaća 1 -->
+    <section class="sekcija">
+      <h2>Specifikacija REST API-ja (Zadaća 1)</h2>
+      <div class="table-container">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Metoda</th>
+              <th>Opis</th>
+              <th>Implementirano</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let api of restApiEndpoints">
+              <td class="endpoint">{{ api.endpoint }}</td>
+              <td class="metoda">{{ api.metoda }}</td>
+              <td>{{ api.opis }}</td>
+              <td
+                [class.status-da]="api.implementirano === 'Da'"
+                [class.status-ne]="api.implementirano === 'Ne'"
+                [class.status-djelomicno]="api.implementirano === 'Djelomično'"
+              >
+                {{ api.implementirano }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Funkcionalni zahtjevi - Zadaća 1 -->
+    <section class="sekcija">
+      <h2>Status funkcionalnih zahtjeva - Zadaća 1 (Web stranice - poslužitelj)</h2>
+      <div class="table-container">
+        <table class="zahtjevi-table">
+          <thead>
+            <tr>
+              <th>Uloga</th>
+              <th>Funkcionalnost</th>
+              <th>Implementirano</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let zahtjev of funkcionalniZahtjeviZadaca1">
+              <td class="uloga">{{ zahtjev.uloga }}</td>
+              <td>{{ zahtjev.funkcionalnost }}</td>
+              <td
+                [class.status-da]="zahtjev.implementirano === 'Da'"
+                [class.status-ne]="zahtjev.implementirano === 'Ne'"
+                [class.status-djelomicno]="zahtjev.implementirano === 'Djelomično'"
+              >
+                {{ zahtjev.implementirano }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Funkcionalni zahtjevi - Zadaća 2 -->
+    <section class="sekcija">
+      <h2>Status funkcionalnih zahtjeva - Zadaća 2 (Angular aplikacija)</h2>
+      <div class="table-container">
+        <table class="zahtjevi-table">
+          <thead>
+            <tr>
+              <th>Funkcionalnost</th>
+              <th>Implementirano</th>
+              <th>Napomena</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let zahtjev of funkcionalniZahtjeviZadaca2">
+              <td>{{ zahtjev.funkcionalnost }}</td>
+              <td
+                [class.status-da]="zahtjev.implementirano === 'Da'"
+                [class.status-ne]="zahtjev.implementirano === 'Ne'"
+                [class.status-djelomicno]="zahtjev.implementirano === 'Djelomično'"
+              >
+                {{ zahtjev.implementirano }}
+              </td>
+              <td class="napomena">{{ zahtjev.napomena }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Nefunkcionalni zahtjevi - Zadaća 2 -->
+    <section class="sekcija">
+      <h2>Status nefunkcionalnih zahtjeva - Zadaća 2 (Angular aplikacija)</h2>
+      <div class="table-container">
+        <table class="zahtjevi-table">
+          <thead>
+            <tr>
+              <th>Zahtjev</th>
+              <th>Implementirano</th>
+              <th>Napomena</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let zahtjev of nefunkcionalniZahtjeviZadaca2">
+              <td>{{ zahtjev.zahtjev }}</td>
+              <td
+                [class.status-da]="zahtjev.implementirano === 'Da'"
+                [class.status-ne]="zahtjev.implementirano === 'Ne'"
+                [class.status-djelomicno]="zahtjev.implementirano === 'Djelomično'"
+              >
+                {{ zahtjev.implementirano }}
+              </td>
+              <td class="napomena">{{ zahtjev.napomena }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Poznati problemi -->
+    <section class="sekcija">
+      <h2>Napomene i poznati problemi</h2>
+      <div class="problemi-container">
+        <h3>Trenutno stanje projekta</h3>
+        <ul class="lista-problema">
+          <li *ngFor="let problem of poznatProblemi">{{ problem }}</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Struktura projekta -->
+    <section class="sekcija">
+      <h2>Struktura projekta</h2>
+      <div class="struktura-info">
+        <h3>Zadaća 1 - Web stranice (HTML/JS)</h3>
+        <p>
+          Lokacija: <code>posluzitelj/src/aplikacija/</code> i
+          <code>posluzitelj/build/aplikacija/</code>
+        </p>
+        <p>
+          Sve funkcionalnosti Zadaće 1 su implementirane kao statične web stranice sa JavaScript-om.
+        </p>
+
+        <h3>Zadaća 2 - Angular aplikacija</h3>
+        <p>Lokacija: <code>angular/projekti/zadaca2/</code></p>
+        <p>
+          Angular aplikacija trenutno sadrži samo osnovni template bez implementiranih
+          funkcionalnosti.
+        </p>
+
+        <h3>REST API poslužitelj</h3>
+        <p>Lokacija: <code>posluzitelj/src/servis/</code></p>
+        <p>Svi REST API endpointi su implementirani i funkcionalni.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Multimedijska zbirka. Sva prava zadržana.</p>
+  </footer>
+</div>
