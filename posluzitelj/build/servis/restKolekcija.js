@@ -1,12 +1,15 @@
 import Baza from "../zajednicko/sqliteBaza.js";
 import KolekcijaDAO from "../zajednicko/dao/kolekcijaDAO.js";
+import KorisnikKolekcijaDAO from "../zajednicko/dao/korisnik_kolekcijaDAO.js";
 export class RestKolekcija {
     kdao;
+    korisnikKolekcijaDao;
     konf;
     constructor(konf) {
         const db = new Baza("podaci/RWA2025vmatuka23.sqlite");
         db.spoji();
         this.kdao = new KolekcijaDAO(db);
+        this.korisnikKolekcijaDao = new KorisnikKolekcijaDAO(db);
         this.konf = konf;
     }
     async getKolekcije(req, res) {
@@ -259,6 +262,72 @@ export class RestKolekcija {
             }
             await this.kdao.ukloniMultimedijuIzKolekcije(kolekcijaId, multimedijaId);
             res.status(200).json({ status: "uspjeh", poruka: "Multimedija uklonjena iz kolekcije" });
+        }
+        catch (err) {
+            res.status(500).json({ greska: err.message });
+        }
+    }
+    async dodajKorisnika(req, res) {
+        res.type("application/json");
+        const uloga = req.session?.korisnik?.uloga;
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni" });
+            return;
+        }
+        if (uloga !== "moderator" && uloga !== "admin") {
+            res.status(403).json({ greska: "Morate biti moderator ili admin da dodate korisnika u kolekciju" });
+            return;
+        }
+        const kolekcijaId = Number(req.params["id"]);
+        const { korisnikId } = req.body;
+        if (!korisnikId) {
+            res.status(400).json({ greska: "Nedostaje korisnikId" });
+            return;
+        }
+        try {
+            const kolekcija = await this.kdao.dajKolekcijuPoId(kolekcijaId);
+            if (!kolekcija) {
+                res.status(404).json({ greska: "Kolekcija ne postoji" });
+                return;
+            }
+            const postoji = await this.korisnikKolekcijaDao.postojiVeza(korisnikId, kolekcijaId);
+            if (postoji) {
+                res.status(400).json({ greska: "Korisnik je već dodan u kolekciju" });
+                return;
+            }
+            await this.korisnikKolekcijaDao.dodajVezu({ korisnikId, kolekcijaId });
+            res.status(201).json({ status: "uspjeh", poruka: "Korisnik dodan u kolekciju" });
+        }
+        catch (err) {
+            res.status(500).json({ greska: err.message });
+        }
+    }
+    async ukloniKorisnika(req, res) {
+        res.type("application/json");
+        const uloga = req.session?.korisnik?.uloga;
+        if (!req.session?.korisnik) {
+            res.status(401).json({ greska: "Morate biti prijavljeni" });
+            return;
+        }
+        if (uloga !== "moderator" && uloga !== "admin") {
+            res.status(403).json({ greska: "Morate biti moderator ili admin da uklonite korisnika iz kolekcije" });
+            return;
+        }
+        const kolekcijaId = Number(req.params["id"]);
+        const korisnikId = Number(req.params["korisnikId"]);
+        try {
+            const kolekcija = await this.kdao.dajKolekcijuPoId(kolekcijaId);
+            if (!kolekcija) {
+                res.status(404).json({ greska: "Kolekcija ne postoji" });
+                return;
+            }
+            const postoji = await this.korisnikKolekcijaDao.postojiVeza(korisnikId, kolekcijaId);
+            if (!postoji) {
+                res.status(404).json({ greska: "Veza između korisnika i kolekcije ne postoji" });
+                return;
+            }
+            await this.korisnikKolekcijaDao.obrisiVezu(korisnikId, kolekcijaId);
+            res.status(200).json({ status: "uspjeh", poruka: "Korisnik uklonjen iz kolekcije" });
         }
         catch (err) {
             res.status(500).json({ greska: err.message });

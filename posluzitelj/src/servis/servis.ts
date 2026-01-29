@@ -56,6 +56,8 @@ export function pripremiPutanjeResursKolekcije(server: Application, konf: Konfig
   server.delete("/api/kolekcije/:id", restKolekcija.deleteKolekcija.bind(restKolekcija));
   server.post("/api/kolekcije/:id/multimedija", restKolekcija.dodajMultimediju.bind(restKolekcija));
   server.delete("/api/kolekcije/:id/multimedija/:multimedijaId", restKolekcija.ukloniMultimediju.bind(restKolekcija));
+  server.post("/api/kolekcije/:id/korisnici", restKolekcija.dodajKorisnika.bind(restKolekcija));
+  server.delete("/api/kolekcije/:id/korisnici/:korisnikId", restKolekcija.ukloniKorisnika.bind(restKolekcija));
 }
 
 export function pripremiPutanjeResursMultimedije(server: Application) {
