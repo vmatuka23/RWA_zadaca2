@@ -1,0 +1,36 @@
+<div class="kontejner-forma">
+  <h2>Prijava</h2>
+
+  @if (errorMessage()) {
+    <div class="poruka-greska">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="grupa-unos">
+      <label for="korisnickoIme">Korisničko ime:</label>
+      <input
+        type="text"
+        id="korisnickoIme"
+        formControlName="korisnickoIme"
+        placeholder="Unesite korisničko ime"
+      />
+      @if (loginForm.get('korisnickoIme')?.invalid && loginForm.get('korisnickoIme')?.touched) {
+        <span class="greska">Korisničko ime je obavezno</span>
+      }
+    </div>
+
+    <div class="grupa-unos">
+      <label for="lozinka">Lozinka:</label>
+      <input type="password" id="lozinka" formControlName="lozinka" placeholder="Unesite lozinku" />
+      @if (loginForm.get('lozinka')?.invalid && loginForm.get('lozinka')?.touched) {
+        <span class="greska">Lozinka je obavezna</span>
+      }
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid || isLoading()">
+      {{ isLoading() ? 'Prijava...' : 'Prijavi se' }}
+    </button>
+  </form>
+
+  <p class="tekst-pomocni">Nemate račun? <a routerLink="/register">Registrirajte se</a></p>
+</div>

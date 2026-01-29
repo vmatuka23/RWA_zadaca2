@@ -1,0 +1,103 @@
+<div class="kontejner-sadrzaj">
+  <h2>Multimedijski sadržaj</h2>
+
+  <!-- TMDB Search Section -->
+  <section class="sekcija-tmdb">
+    <h3>Pretraga TMDB</h3>
+    <div class="odabir-kolekcije">
+      <label for="odabirKolekcije">Odaberi kolekciju za dodavanje:</label>
+      <select id="odabirKolekcije" [(ngModel)]="selectedCollectionId">
+        <option value="">Odaberi kolekciju</option>
+        @for (collection of collections(); track collection.id) {
+          <option [value]="collection.id">{{ collection.naziv }}</option>
+        }
+      </select>
+    </div>
+
+    <form class="forma-pretraga" (ngSubmit)="searchTMDB()">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        name="searchQuery"
+        placeholder="Pretraži filmove..."
+      />
+      <button type="submit">Pretraži</button>
+    </form>
+
+    <div class="kontejner-rezultata">
+      @if (isSearching()) {
+        <p>Pretraživanje...</p>
+      } @else if (searchResults().length > 0) {
+        @for (movie of searchResults(); track movie.id) {
+          <div class="kartica-rezultata">
+            <h3>{{ movie.title }}</h3>
+            <p>
+              {{
+                movie.overview
+                  ? movie.overview.length > 150
+                    ? movie.overview.substring(0, 150) + '...'
+                    : movie.overview
+                  : ''
+              }}
+            </p>
+            @if (movie.poster_path) {
+              <div class="kontejner-slika">
+                <img [src]="getTMDBImageUrl(movie.poster_path, 'w200')" [alt]="movie.title" />
+                <button (click)="addToCollection(movie.poster_path, movie.title)">
+                  Dodaj u kolekciju
+                </button>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- File Upload Section -->
+  <section class="sekcija-upload">
+    <h3>Učitaj datoteku</h3>
+    <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
+      <div class="grupa-unos">
+        <label for="naslovMultimedije">Naslov:</label>
+        <input type="text" id="naslovMultimedije" formControlName="naziv" />
+        @if (uploadForm.get('naziv')?.invalid && uploadForm.get('naziv')?.touched) {
+          <span class="greska">Naslov je obavezan</span>
+        }
+      </div>
+
+      <div class="grupa-unos">
+        <label for="kolekcijaUpload">Kolekcija:</label>
+        <select id="kolekcijaUpload" formControlName="kolekcijaId">
+          <option value="">Odaberi kolekciju</option>
+          @for (collection of collections(); track collection.id) {
+            <option [value]="collection.id">{{ collection.naziv }}</option>
+          }
+        </select>
+        @if (uploadForm.get('kolekcijaId')?.invalid && uploadForm.get('kolekcijaId')?.touched) {
+          <span class="greska">Kolekcija je obavezna</span>
+        }
+      </div>
+
+      <div class="grupa-unos">
+        <label for="ucitavanjeDatoteke">Datoteka:</label>
+        <input
+          type="file"
+          id="ucitavanjeDatoteke"
+          (change)="onFileSelected($event)"
+          accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
+        />
+        @if (uploadError()) {
+          <span class="greska">{{ uploadError() }}</span>
+        }
+        <small
+          >Maksimalna veličina: 1MB. Podržani formati: JPEG, PNG, GIF, WebP, MP4, WebM, MOV</small
+        >
+      </div>
+
+      <button type="submit" [disabled]="uploadForm.invalid || !selectedFile() || isUploading()">
+        {{ isUploading() ? 'Učitavanje...' : 'Učitaj' }}
+      </button>
+    </form>
+  </section>
+</div>

@@ -1,0 +1,29 @@
+<div class="kontejner-moderator">
+  <h2>Moderatorska ploča</h2>
+  <p>Dobro došli na moderatorsku ploču. Ovdje možete upravljati sadržajem i korisnicima.</p>
+
+  <div class="sekcije">
+    <section>
+      <h3>Pregled svih kolekcija</h3>
+      <p>Ukupno kolekcija: {{ totalCollections() }}</p>
+      <button (click)="loadAllCollections()">Učitaj sve kolekcije</button>
+    </section>
+
+    <section>
+      <h3>Pregled multimedije</h3>
+      <p>Ukupno multimedijskih datoteka: {{ totalMultimedia() }}</p>
+      <button (click)="loadAllMultimedia()">Učitaj sve datoteke</button>
+    </section>
+  </div>
+
+  @if (collections().length > 0) {
+    <div class="lista-kolekcija">
+      <h3>Kolekcije</h3>
+      @for (collection of collections(); track collection.id) {
+        <div class="stavka-kolekcije">
+          <strong>{{ collection.naziv }}</strong> - {{ collection.javno ? 'Javna' : 'Privatna' }}
+        </div>
+      }
+    </div>
+  }
+</div>

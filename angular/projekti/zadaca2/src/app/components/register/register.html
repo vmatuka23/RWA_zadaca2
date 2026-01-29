@@ -1,0 +1,84 @@
+<div class="kontejner-forma">
+  <h2>Registracija</h2>
+
+  @if (errorMessage()) {
+    <div class="poruka-greska">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="poruka-uspjeh">{{ successMessage() }}</div>
+  }
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div class="grupa-unos">
+      <label for="email">Email: *</label>
+      <input type="email" id="email" formControlName="email" placeholder="Unesite email" />
+      @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+        <span class="greska">
+          @if (registerForm.get('email')?.errors?.['required']) {
+            Email je obavezan
+          }
+          @if (registerForm.get('email')?.errors?.['email']) {
+            Unesite ispravnu email adresu
+          }
+        </span>
+      }
+    </div>
+
+    <div class="grupa-unos">
+      <label for="korisnickoIme">Korisničko ime: *</label>
+      <input
+        type="text"
+        id="korisnickoIme"
+        formControlName="korisnickoIme"
+        placeholder="Unesite korisničko ime"
+      />
+      @if (
+        registerForm.get('korisnickoIme')?.invalid && registerForm.get('korisnickoIme')?.touched
+      ) {
+        <span class="greska">Korisničko ime je obavezno</span>
+      }
+    </div>
+
+    <div class="grupa-unos">
+      <label for="lozinka">Lozinka: *</label>
+      <input
+        type="password"
+        id="lozinka"
+        formControlName="lozinka"
+        placeholder="Unesite lozinku (min. 6 znakova)"
+      />
+      @if (registerForm.get('lozinka')?.invalid && registerForm.get('lozinka')?.touched) {
+        <span class="greska">
+          @if (registerForm.get('lozinka')?.errors?.['required']) {
+            Lozinka je obavezna
+          }
+          @if (registerForm.get('lozinka')?.errors?.['minlength']) {
+            Lozinka mora imati najmanje 6 znakova
+          }
+        </span>
+      }
+    </div>
+
+    <div class="grupa-unos">
+      <label for="ime">Ime:</label>
+      <input type="text" id="ime" formControlName="ime" placeholder="Unesite ime (opcionalno)" />
+    </div>
+
+    <div class="grupa-unos">
+      <label for="prezime">Prezime:</label>
+      <input
+        type="text"
+        id="prezime"
+        formControlName="prezime"
+        placeholder="Unesite prezime (opcionalno)"
+      />
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid || isLoading()">
+      {{ isLoading() ? 'Registracija...' : 'Registriraj se' }}
+    </button>
+  </form>
+
+  <p class="tekst-pomocni">Već imate račun? <a routerLink="/login">Prijavite se</a></p>
+</div>

@@ -1,0 +1,6 @@
+{
+  "apiBaseUrl": "http://localhost:12222",
+  "tmdbImageBaseUrl": "https://image.tmdb.org/t/p",
+  "maxFileSize": 1048576,
+  "itemsPerPage": 4
+}

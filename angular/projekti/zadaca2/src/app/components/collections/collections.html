@@ -1,0 +1,118 @@
+<div class="kontejner-kolekcije">
+  <div class="zaglavlje-sekcije">
+    <h2>Moje kolekcije</h2>
+    <button (click)="openCreateModal()" class="gumb-nova">Nova kolekcija</button>
+  </div>
+
+  <div id="kontejnerMojihKolekcija" class="grid-kolekcije">
+    @if (isLoading()) {
+      <p>Učitavanje...</p>
+    } @else if (collections().length === 0) {
+      <p>Nemate kolekcija.</p>
+    } @else {
+      @for (collection of collections(); track collection.id) {
+        <div class="kartica-kolekcije">
+          <img
+            [src]="collection.istaknutaSlika || '/slike/placeholder.jpg'"
+            [alt]="collection.naziv"
+          />
+          <h3>{{ collection.naziv }}</h3>
+          <div class="metapodaci">
+            <span>Vidljivost: {{ collection.javno ? 'Javna' : 'Privatna' }}</span>
+            <span>Broj stavki: {{ collection.brojStavki || 0 }}</span>
+          </div>
+          <button (click)="openDetailsModal(collection)">Otvori detalje</button>
+        </div>
+      }
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+    <div id="paginacija" class="paginacija">
+      @if (currentPage() > 1) {
+        <button (click)="loadPage(currentPage() - 1)">« Prethodna</button>
+      }
+      @for (page of pages(); track page) {
+        <button
+          (click)="loadPage(page)"
+          [class.aktivna]="page === currentPage()"
+          [disabled]="page === currentPage()"
+        >
+          {{ page }}
+        </button>
+      }
+      @if (currentPage() < totalPages()) {
+        <button (click)="loadPage(currentPage() + 1)">Sljedeća »</button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Create/Edit Modal -->
+@if (showCreateModal()) {
+  <div class="modal" (click)="closeCreateModal()">
+    <div class="modal-sadrzaj" (click)="$event.stopPropagation()">
+      <div class="zaglavlje-modala">
+        <h2>{{ editingCollection() ? 'Uredi kolekciju' : 'Nova kolekcija' }}</h2>
+        <button class="gumb-zatvori" (click)="closeCreateModal()">×</button>
+      </div>
+      <form [formGroup]="collectionForm" (ngSubmit)="saveCollection()">
+        <div class="grupa-unos">
+          <label for="naziv">Naziv:</label>
+          <input type="text" id="naziv" formControlName="naziv" />
+          @if (collectionForm.get('naziv')?.invalid && collectionForm.get('naziv')?.touched) {
+            <span class="greska">Naziv je obavezan</span>
+          }
+        </div>
+        <div class="grupa-unos">
+          <label for="opis">Opis:</label>
+          <textarea id="opis" formControlName="opis" rows="4"></textarea>
+        </div>
+        <div class="grupa-unos">
+          <label>
+            <input type="checkbox" formControlName="javno" />
+            Javna kolekcija
+          </label>
+        </div>
+        <button type="submit" [disabled]="collectionForm.invalid">Spremi</button>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Details Modal -->
+@if (showDetailsModal() && selectedCollection()) {
+  <div class="modal" (click)="closeDetailsModal()">
+    <div class="modal-sadrzaj modal-veliki" (click)="$event.stopPropagation()">
+      <div class="zaglavlje-modala">
+        <h2>{{ selectedCollection()?.naziv }}</h2>
+        <button class="gumb-zatvori" (click)="closeDetailsModal()">×</button>
+      </div>
+
+      <div class="kontrole-kolekcije">
+        <button (click)="toggleVisibility()">
+          {{ selectedCollection()?.javno ? 'Postavi privatno' : 'Postavi javno' }}
+        </button>
+        <button (click)="openEditModal()">Uredi kolekciju</button>
+        <button (click)="deleteCollection()" class="gumb-obrisi">Obriši kolekciju</button>
+      </div>
+
+      <div class="lista-sadrzaja">
+        @if (collectionItems().length === 0) {
+          <p>Ova kolekcija nema sadržaja.</p>
+        } @else {
+          @for (item of collectionItems(); track item.id) {
+            <div class="stavka-sadrzaja">
+              @if (item.tip === 'slika') {
+                <img [src]="item.putanja" [alt]="item.naziv" />
+              } @else if (item.tip === 'video') {
+                <video [src]="item.putanja" controls></video>
+              }
+              <p>{{ item.naziv }}</p>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

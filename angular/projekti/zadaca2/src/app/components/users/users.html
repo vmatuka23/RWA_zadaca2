@@ -1,0 +1,65 @@
+<div class="kontejner-korisnici">
+  <h2>Upravljanje korisnicima</h2>
+
+  @if (isLoading()) {
+    <p>Učitavanje...</p>
+  } @else if (users().length === 0) {
+    <p>Nema korisnika.</p>
+  } @else {
+    <table class="tablica-korisnici">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Korisničko ime</th>
+          <th>Email</th>
+          <th>Ime</th>
+          <th>Prezime</th>
+          <th>Uloga</th>
+          <th>Status</th>
+          <th>Akcije</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.korisnickoIme }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.ime || '-' }}</td>
+            <td>{{ user.prezime || '-' }}</td>
+            <td>{{ user.uloga }}</td>
+            <td>{{ user.aktiviran ? 'Aktivan' : 'Neaktivan' }}</td>
+            <td>
+              @if (user.aktiviran) {
+                <button (click)="deactivateUser(user.id)">Deaktiviraj</button>
+              } @else {
+                <button (click)="activateUser(user.id)">Aktiviraj</button>
+              }
+              <button (click)="deleteUser(user.id)" class="gumb-obrisi">Obriši</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (totalPages() > 1) {
+    <div class="paginacija">
+      @if (currentPage() > 1) {
+        <button (click)="loadPage(currentPage() - 1)">« Prethodna</button>
+      }
+      @for (page of pages(); track page) {
+        <button
+          (click)="loadPage(page)"
+          [class.aktivna]="page === currentPage()"
+          [disabled]="page === currentPage()"
+        >
+          {{ page }}
+        </button>
+      }
+      @if (currentPage() < totalPages()) {
+        <button (click)="loadPage(currentPage() + 1)">Sljedeća »</button>
+      }
+    </div>
+  }
+</div>

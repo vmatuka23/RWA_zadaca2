@@ -1,0 +1,48 @@
+<div class="kontejner-glavna">
+  <h2>Javne kolekcije</h2>
+
+  <div id="kontejnerKolekcija" class="grid-kolekcije">
+    @if (isLoading()) {
+      <p>Učitavanje...</p>
+    } @else if (collections().length === 0) {
+      <p>Nema dostupnih javnih kolekcija.</p>
+    } @else {
+      @for (collection of collections(); track collection.id) {
+        <div class="kartica-kolekcije">
+          <img
+            [src]="collection.istaknutaSlika || '/slike/placeholder.jpg'"
+            [alt]="collection.naziv"
+          />
+          <h3>{{ collection.naziv }}</h3>
+          <p>{{ collection.opis || '' }}</p>
+          <div class="metapodaci">
+            <span>Vidljivost: {{ collection.javno ? 'Javna' : 'Privatna' }}</span>
+            <span>Broj stavki: {{ collection.brojStavki || 0 }}</span>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+    <div id="paginacija" class="paginacija">
+      @if (currentPage() > 1) {
+        <button (click)="loadPage(currentPage() - 1)">« Prethodna</button>
+      }
+
+      @for (page of pages(); track page) {
+        <button
+          (click)="loadPage(page)"
+          [class.aktivna]="page === currentPage()"
+          [disabled]="page === currentPage()"
+        >
+          {{ page }}
+        </button>
+      }
+
+      @if (currentPage() < totalPages()) {
+        <button (click)="loadPage(currentPage() + 1)">Sljedeća »</button>
+      }
+    </div>
+  }
+</div>

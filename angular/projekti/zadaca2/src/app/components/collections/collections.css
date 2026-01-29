@@ -1,0 +1,62 @@
+.kontejner-kolekcije {
+  .zaglavlje-sekcije {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      margin: 0;
+    }
+
+    .gumb-nova {
+      background-color: #2ecc71;
+
+      &:hover {
+        background-color: #27ae60;
+      }
+    }
+  }
+
+  .metapodaci {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0.5rem 0;
+  }
+}
+
+.kontrole-kolekcije {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.lista-sadrzaja {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.stavka-sadrzaja {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+
+  img,
+  video {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+
+  p {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    text-align: center;
+  }
+}

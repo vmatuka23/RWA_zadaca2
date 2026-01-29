@@ -1,0 +1,42 @@
+<header id="zaglavlje">
+  <h1>RWA Multimedijska Kolekcija</h1>
+
+  <nav id="glavniMeni">
+    <ul>
+      <li>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          >Početna</a
+        >
+      </li>
+
+      @if (currentUser()) {
+        <li><a routerLink="/collections" routerLinkActive="active">Moje kolekcije</a></li>
+        <li><a routerLink="/multimedia" routerLinkActive="active">Sadržaj</a></li>
+      }
+
+      @if (currentUser() && currentUser()?.uloga === 'admin') {
+        <li><a routerLink="/users" routerLinkActive="active">Korisnici</a></li>
+      }
+
+      @if (
+        currentUser() && (currentUser()?.uloga === 'moderator' || currentUser()?.uloga === 'admin')
+      ) {
+        <li><a routerLink="/moderator" routerLinkActive="active">Moderator</a></li>
+      }
+
+      <li><a routerLink="/dokumentacija" routerLinkActive="active">Dokumentacija</a></li>
+    </ul>
+  </nav>
+
+  <div id="autentifikacijaKontejner">
+    @if (!currentUser()) {
+      <a routerLink="/login" class="gumb-prijava">Prijava</a>
+      <a routerLink="/register" class="gumb-registracija">Registracija</a>
+    } @else {
+      <span class="korisnik-info"
+        >{{ currentUser()?.korisnickoIme }} ({{ currentUser()?.uloga }})</span
+      >
+      <button (click)="logout()" class="gumb-odjava">Odjava</button>
+    }
+  </div>
+</header>

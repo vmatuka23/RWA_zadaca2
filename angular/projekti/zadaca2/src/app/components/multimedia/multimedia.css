@@ -1,0 +1,77 @@
+.kontejner-sadrzaj {
+  h2 {
+    margin-bottom: 2rem;
+  }
+}
+
+.sekcija-tmdb,
+.sekcija-upload {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+}
+
+.odabir-kolekcije {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+}
+
+.forma-pretraga {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  button {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+.kontejner-rezultata {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.kartica-rezultata {
+  .kontejner-slika {
+    position: relative;
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    button {
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+  }
+}
