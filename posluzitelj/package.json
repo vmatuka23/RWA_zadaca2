@@ -1,0 +1,48 @@
+{
+	"name": "vjezba_04_dz1",
+	"version": "1.0.0",
+	"description": "",
+	"main": "build/server.js",
+	"type": "module",
+	"scripts": {
+		"pripremi": "npm link --save --package-lock false express  express-session cookie-parser sqlite3 sqlite cors jsonwebtoken nodemailer base32-encoding totp-generator",
+		"compile": "tsc --watch false",
+		"copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css src/**/*.jpg 'src/**/*.js' build/",
+		"clean": "rimraf build",
+		"server": "node build/servis/server.js podaci/rwa_vmatuka_conf.csv",
+		"start": "npm run server",
+		"start-spider": "npm run pripremi && npm run server",
+		"start-local": "npm run clean && npm run compile && npm run copy-files && npm run server",
+		"debug": "npm run compile && npm run copy-files && node --enable-source-maps --inspect-brk=9229 build/server.js",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"zadaca": "npm run clean && npm run compile && npm run copy-files && node --enable-source-maps build/servis/server.js podaci/rwa_vmatuka_conf.csv"
+	},
+	"author": "Vigo Matuka",
+	"license": "ISC",
+	"dependencies": {
+		"@types/multer": "^2.0.0",
+		"base32-encoding": "file:../../../../AppData/Roaming/npm/node_modules/base32-encoding",
+		"bcrypt": "^6.0.0",
+		"cookie-parser": "file:../../../../AppData/Roaming/npm/node_modules/cookie-parser",
+		"cors": "file:../../../../AppData/Roaming/npm/node_modules/cors",
+		"express": "file:../../../../AppData/Roaming/npm/node_modules/express",
+		"express-session": "file:../../../../AppData/Roaming/npm/node_modules/express-session",
+		"jsonwebtoken": "file:../../../../AppData/Roaming/npm/node_modules/jsonwebtoken",
+		"multer": "^2.0.2",
+		"nodemailer": "file:../../../../AppData/Roaming/npm/node_modules/nodemailer",
+		"sqlite": "file:../../../../AppData/Roaming/npm/node_modules/sqlite",
+		"sqlite3": "file:../../../../AppData/Roaming/npm/node_modules/sqlite3",
+		"totp-generator": "file:../../../../AppData/Roaming/npm/node_modules/totp-generator"
+	},
+	"devDependencies": {
+		"@types/bcrypt": "^6.0.0",
+		"@types/cookie-parser": "^1.4.10",
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.5",
+		"@types/express-session": "^1.18.2",
+		"@types/node": "^24.10.1",
+		"copyfiles": "^2.4.1",
+		"rimraf": "^6.1.2",
+		"typescript": "^5.3.3"
+	}
+}

@@ -1,0 +1,518 @@
+###############################################
+### IMPORTANT: SETUP INSTRUCTIONS
+###############################################
+### Before running tests:
+### 1. Register users (run the Register tests below)
+### 2. Manually update database roles using SQL:
+###    UPDATE korisnik SET uloga = 'admin' WHERE korisnickoIme = 'admin1';
+###    UPDATE korisnik SET uloga = 'moderator' WHERE korisnickoIme = 'moderator1';
+### OR: Use the provided setup script in dokumentacija/
+###############################################
+
+###############################################
+### AUTHENTICATION AND SESSION TESTS
+###############################################
+
+### Register Admin User (will be created as korisnik, then manually updated to admin)
+POST http://localhost:12222/register
+Content-Type: application/json
+
+{
+  "korisnickoIme": "admin1",
+  "lozinka": "admin123",
+  "email": "admin@example.com",
+  "ime": "Admin",
+  "prezime": "User"
+}
+
+### Register Moderator User (will be created as korisnik, then manually updated to moderator)
+POST http://localhost:12222/register
+Content-Type: application/json
+
+{
+  "korisnickoIme": "moderator1",
+  "lozinka": "moderator123",
+  "email": "moderator@example.com",
+  "ime": "Moderator",
+  "prezime": "User"
+}
+
+### Register Regular User
+POST http://localhost:12222/register
+Content-Type: application/json
+
+{
+  "korisnickoIme": "korisnik1",
+  "lozinka": "korisnik123",
+  "email": "korisnik@example.com",
+  "ime": "Regular",
+  "prezime": "User"
+}
+
+### Register Second User (for permission testing)
+POST http://localhost:12222/register
+Content-Type: application/json
+
+{
+  "korisnickoIme": "korisnik2",
+  "lozinka": "korisnik456",
+  "email": "korisnik2@example.com",
+  "ime": "Second",
+  "prezime": "User"
+}
+
+### Login as Admin (after manually updating role in DB)
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "admin1",
+  "lozinka": "admin123"
+}
+
+### Get Current User (verify admin role)
+GET http://localhost:12222/korisnik
+
+###############################################
+### COLLECTION MANAGEMENT TESTS
+###############################################
+
+### 1. GET /api/kolekcije - Admin can get all collections (with pagination)
+GET http://localhost:12222/api/kolekcije?page=1
+
+### 2. GET /api/kolekcije/javne - Get public collections (for guests, no auth needed)
+GET http://localhost:12222/api/kolekcije/javne?page=1
+
+### 3. POST /api/kolekcije - Admin creates collection
+POST http://localhost:12222/api/kolekcije
+Content-Type: application/json
+
+{
+  "naziv": "Admin Kolekcija",
+  "opis": "Privatna kolekcija kreirana od strane admina",
+  "istaknutaSlika": "https://example.com/image.jpg",
+  "javno": false
+}
+
+### 4. POST /api/kolekcije - Admin creates public collection
+POST http://localhost:12222/api/kolekcije
+Content-Type: application/json
+
+{
+  "naziv": "Javna Kolekcija",
+  "opis": "Javna kolekcija dostupna svima",
+  "istaknutaSlika": "https://example.com/public.jpg",
+  "javno": true
+}
+
+### 5. GET /api/kolekcije/:id - Get specific collection (admin)
+GET http://localhost:12222/api/kolekcije/1
+
+### 6. PUT /api/kolekcije/:id - Update collection (admin)
+PUT http://localhost:12222/api/kolekcije/1
+Content-Type: application/json
+
+{
+  "naziv": "Ažurirana Admin Kolekcija",
+  "opis": "Ažuriran opis",
+  "javno": true
+}
+
+### 7. DELETE /api/kolekcije/:id - Admin deletes collection
+DELETE http://localhost:12222/api/kolekcije/1
+
+### Login as Moderator (after manually updating role in DB)
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "moderator1",
+  "lozinka": "moderator123"
+}
+
+### 8. GET /api/kolekcije - Moderator gets all collections
+GET http://localhost:12222/api/kolekcije?page=1
+
+### 9. POST /api/kolekcije - Moderator creates collection
+POST http://localhost:12222/api/kolekcije
+Content-Type: application/json
+
+{
+  "naziv": "Moderator Kolekcija",
+  "opis": "Kolekcija kreirana od strane moderatora",
+  "istaknutaSlika": "https://example.com/mod.jpg",
+  "javno": true
+}
+
+### 10. PUT /api/kolekcije/:id - Moderator updates collection
+PUT http://localhost:12222/api/kolekcije/6
+Content-Type: application/json
+
+{
+  "javno": false
+}
+
+### Login as Regular User (korisnik)
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "korisnik1",
+  "lozinka": "korisnik123"
+}
+
+### 11. GET /api/kolekcije - Regular user gets their collections
+GET http://localhost:12222/api/kolekcije?page=1
+
+### 12. GET /api/kolekcije/javne - Regular user can get public collections
+GET http://localhost:12222/api/kolekcije/javne
+
+### 13. POST /api/kolekcije - Regular user tries to create (should fail 403)
+POST http://localhost:12222/api/kolekcije
+Content-Type: application/json
+
+{
+  "naziv": "Neovlaštena Kolekcija",
+  "opis": "Ovo bi trebalo propasti",
+  "javno": true
+}
+
+### 14. GET /api/kolekcije/:id - Regular user tries private collection (should fail 403)
+GET http://localhost:12222/api/kolekcije/2
+
+### 15. GET /api/kolekcije/:id - Regular user accesses public collection (should succeed)
+GET http://localhost:12222/api/kolekcije/1
+
+###############################################
+### USER-COLLECTION MANAGEMENT TESTS
+###############################################
+
+### Login as Admin
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "admin1",
+  "lozinka": "admin123"
+}
+
+### 16. POST /api/korisnik-kolekcija - Admin adds user to collection
+POST http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 7,
+  "kolekcijaId": 5
+}
+
+### 17. POST /api/korisnik-kolekcija - Add another user to collection
+POST http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 1,
+  "kolekcijaId": 2
+}
+
+### 18. POST /api/korisnik-kolekcija - Try duplicate (should fail 400)
+POST http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 1,
+  "kolekcijaId": 2
+}
+
+### 19. POST /api/korisnik-kolekcija - Try non-existent user (should fail 404)
+POST http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 999,
+  "kolekcijaId": 2
+}
+
+### 20. GET /api/korisnik-kolekcija/korisnik/:id - Get collections for user
+GET http://localhost:12222/api/korisnik-kolekcija/korisnik/7
+
+### 21. GET /api/korisnik-kolekcija/kolekcija/:id - Get users in collection
+GET http://localhost:12222/api/korisnik-kolekcija/kolekcija/2
+
+### 22. DELETE /api/korisnik-kolekcija - Admin removes user from collection
+DELETE http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 1,
+  "kolekcijaId": 2
+}
+
+### 23. DELETE /api/korisnik-kolekcija - Try non-existent link (should fail 404)
+DELETE http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 999,
+  "kolekcijaId": 999
+}
+
+### Login as Regular User
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "korisnik1",
+  "lozinka": "korisnik123"
+}
+
+### 24. POST /api/korisnik-kolekcija - Regular user tries (should fail 403)
+POST http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 3,
+  "kolekcijaId": 2
+}
+
+### 25. GET /api/korisnik-kolekcija/korisnik/:id - Regular user tries (should fail 403)
+GET http://localhost:12222/api/korisnik-kolekcija/korisnik/3
+
+### 26. DELETE /api/korisnik-kolekcija - Regular user tries (should fail 403)
+DELETE http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 3,
+  "kolekcijaId": 2
+}
+
+###############################################
+### MULTIMEDIA MANAGEMENT IN COLLECTIONS
+###############################################
+
+### Login as Admin
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "admin1",
+  "lozinka": "admin123"
+}
+
+### 27. POST /api/kolekcije/:id/multimedija - Add multimedia to collection
+POST http://localhost:12222/api/kolekcije/2/multimedija
+Content-Type: application/json
+
+{
+  "multimedijaId": 1
+}
+
+### 28. DELETE /api/kolekcije/:id/multimedija/:multimedijaId - Remove multimedia
+DELETE http://localhost:12222/api/kolekcije/2/multimedija/1
+
+### Login as Regular User
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "korisnik1",
+  "lozinka": "korisnik123"
+}
+
+### 29. POST /api/kolekcije/:id/multimedija - Regular user tries (should fail 403)
+POST http://localhost:12222/api/kolekcije/2/multimedija
+Content-Type: application/json
+
+{
+  "multimedijaId": 1
+}
+
+###############################################
+### USER MANAGEMENT (ADMIN ONLY)
+###############################################
+
+### Login as Admin
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "admin1",
+  "lozinka": "admin123"
+}
+
+### 30. GET /api/korisnici - Get all users (admin only)
+GET http://localhost:12222/api/korisnici
+
+### 31. PUT /api/korisnici/:id/blokiraj - Block a user
+PUT http://localhost:12222/api/korisnici/4/blokiraj
+Content-Type: application/json
+
+{
+  "blokiran": true
+}
+
+### 32. PUT /api/korisnici/:id/blokiraj - Unblock a user
+PUT http://localhost:12222/api/korisnici/4/blokiraj
+Content-Type: application/json
+
+{
+  "blokiran": false
+}
+
+### 33. PUT /api/korisnici/:id/blokiraj - Admin tries to block himself (should fail 403)
+PUT http://localhost:12222/api/korisnici/1/blokiraj
+Content-Type: application/json
+
+{
+  "blokiran": true
+}
+
+### 34. PUT /api/korisnici/:id/uloga - Change user role to moderator
+PUT http://localhost:12222/api/korisnici/4/uloga
+Content-Type: application/json
+
+{
+  "novaUloga": "moderator"
+}
+
+### 35. PUT /api/korisnici/:id/uloga - Change user role back to korisnik
+PUT http://localhost:12222/api/korisnici/4/uloga
+Content-Type: application/json
+
+{
+  "novaUloga": "korisnik"
+}
+
+### 36. PUT /api/korisnici/:id/uloga - Try invalid role (should fail 400)
+PUT http://localhost:12222/api/korisnici/4/uloga
+Content-Type: application/json
+
+{
+  "novaUloga": "superadmin"
+}
+
+### 37. PUT /api/korisnici/:id/uloga - Non-existent user (should fail 404)
+PUT http://localhost:12222/api/korisnici/999/uloga
+Content-Type: application/json
+
+{
+  "novaUloga": "moderator"
+}
+
+### Login as Regular User
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "korisnik1",
+  "lozinka": "korisnik123"
+}
+
+### 38. GET /api/korisnici - Regular user tries (should fail 403)
+GET http://localhost:12222/api/korisnici
+
+### 39. PUT /api/korisnici/:id/blokiraj - Regular user tries (should fail 403)
+PUT http://localhost:12222/api/korisnici/4/blokiraj
+Content-Type: application/json
+
+{
+  "blokiran": true
+}
+
+### 40. PUT /api/korisnici/:id/uloga - Regular user tries (should fail 403)
+PUT http://localhost:12222/api/korisnici/4/uloga
+Content-Type: application/json
+
+{
+  "novaUloga": "moderator"
+}
+
+### Logout
+POST http://localhost:12222/logout
+
+###############################################
+### GUEST ACCESS TESTS
+###############################################
+
+### 41. GET /api/kolekcije/javne - Guest can get public collections
+GET http://localhost:12222/api/kolekcije/javne
+
+### 42. GET /api/kolekcije/:id - Guest tries private collection (should fail 403)
+GET http://localhost:12222/api/kolekcije/1
+
+### 43. GET /api/kolekcije/:id - Guest accesses public collection (should succeed)
+GET http://localhost:12222/api/kolekcije/2
+
+### 44. GET /api/kolekcije - Guest tries (should fail 401)
+GET http://localhost:12222/api/kolekcije
+
+###############################################
+### ERROR HANDLING TESTS
+###############################################
+
+### Login as Admin
+POST http://localhost:12222/login
+Content-Type: application/json
+
+{
+  "korisnickoIme": "admin1",
+  "lozinka": "admin123"
+}
+
+### 45. POST /api/kolekcije - Missing naziv (should fail 400)
+POST http://localhost:12222/api/kolekcije
+Content-Type: application/json
+
+{
+  "opis": "Bez naziva",
+  "javno": true
+}
+
+### 46. POST /api/korisnik-kolekcija - Missing fields (should fail 400)
+POST http://localhost:12222/api/korisnik-kolekcija
+Content-Type: application/json
+
+{
+  "korisnikId": 1
+}
+
+### 47. PUT /api/korisnici/:id/uloga - Missing novaUloga (should fail 400)
+PUT http://localhost:12222/api/korisnici/3/uloga
+Content-Type: application/json
+
+{
+}
+
+### 48. PUT /api/korisnici/:id/blokiraj - Missing blokiran (should fail 400)
+PUT http://localhost:12222/api/korisnici/3/blokiraj
+Content-Type: application/json
+
+{
+}
+
+### 49. GET /api/kolekcije/:id - Non-existent collection (should fail 404)
+GET http://localhost:12222/api/kolekcije/999
+
+### 50. PUT /api/kolekcije/:id - Non-existent collection (should fail 404)
+PUT http://localhost:12222/api/kolekcije/999
+Content-Type: application/json
+
+{
+  "naziv": "Test"
+}
+
+### 51. DELETE /api/kolekcije/:id - Non-existent collection (should fail 404)
+DELETE http://localhost:12222/api/kolekcije/999
+
+###############################################
+### PAGINATION TESTS
+###############################################
+
+### 52. GET /api/kolekcije - First page (default)
+GET http://localhost:12222/api/kolekcije
+
+### 53. GET /api/kolekcije - Specific page
+GET http://localhost:12222/api/kolekcije?page=2
+
+### 54. GET /api/kolekcije/javne - Public collections pagination
+GET http://localhost:12222/api/kolekcije/javne?page=1
