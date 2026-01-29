@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd C:\\\\Users\\\\Vigo\\\\Documents\\\\RWA\\\\zadaca2\\\\posluzitelj; npm run zadaca$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
